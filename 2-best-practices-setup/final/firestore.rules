@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    match /markdowns/{id} {
+      allow write: if request.auth.uid != null;
+      allow read: if true;
+    }
+
+  }
+}
