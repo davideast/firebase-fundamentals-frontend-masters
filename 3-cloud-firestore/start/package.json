@@ -3,15 +3,22 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently npm:emulators vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "emulators": "firebase emulators:start --only firestore,auth"
   },
   "dependencies": {
+    "firebase": "^9.8.1",
+    "open-props": "^1.3.16",
     "vue": "^3.2.25"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.3",
+    "concurrently": "^7.2.0",
+    "firebase-tools": "^10.9.2",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4",
     "vite": "^2.9.9"
   }
 }

@@ -2,7 +2,6 @@
 import { defineProps } from 'vue';
 const { isNumeric, value } = defineProps(['isNumeric', 'value']);
 const cssClass = isNumeric ? 'numeric' : '';
-console.log(value, isNumeric);
 </script>
 
 <template>

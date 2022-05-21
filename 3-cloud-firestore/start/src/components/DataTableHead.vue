@@ -1,6 +1,7 @@
 <script setup>
 import { defineProps } from 'vue';
 const { headingValues } = defineProps(['headingValues']);
+// console.log(headingValues)
 </script>
 
 <template>
@@ -10,3 +11,9 @@ const { headingValues } = defineProps(['headingValues']);
     </tr>
   </thead>
 </template>
+
+<style>
+th {
+  text-align: left;
+}
+</style>

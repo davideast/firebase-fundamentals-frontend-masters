@@ -6,7 +6,6 @@ import DataTableRowList from './DataTableRowList.vue';
 const { headings, values } = defineProps(['headings', 'values']);
 let headingValues = [];
 let numericColumns = [];
-
 for (let heading of headings) {
   headingValues = [...headingValues, heading.value];
   const isNumeric = heading.type === "numeric";
