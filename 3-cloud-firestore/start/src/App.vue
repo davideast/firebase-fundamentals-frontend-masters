@@ -37,24 +37,7 @@ const headings = [
 </script>
 
 <template>
-  <main>    
-    <!-- <section class="code-section">
-      <div class="code-box">
-
-      </div>
-    </section>     -->
-    <section class="table-section">
-      <div class="headline">
-        <h2>Exercise 1</h2>
-        <div>Reading Data</div>
-      </div>
-  
-      <DataTable
-        :headings="headings"
-        :values="state.values" />
-    </section>
-  </main>
-
+  <router-view></router-view>
 </template>
 
 <style>

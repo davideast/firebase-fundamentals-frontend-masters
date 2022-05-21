@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { config } from './config';
 
@@ -18,8 +18,14 @@ function connectToEmulators({ firebaseApp, auth, firestore }) {
   return { firebaseApp, auth, firestore };
 }
 
+function enableOffline({ firestore, firebaseApp, auth }) {
+  enableMultiTabIndexedDbPersistence(firestore);
+  return { firestore, firebaseApp, auth };
+}
+
 export function getFirebase() {
   const existingApp = getApps().at(0);
   if(existingApp) return initialize();
-  return connectToEmulators(initialize());
+  const services = connectToEmulators(initialize());
+  return enableOffline(services);
 }

@@ -1,7 +1,5 @@
 <script setup>
-import { defineProps } from 'vue';
 const { headingValues } = defineProps(['headingValues']);
-// console.log(headingValues)
 </script>
 
 <template>

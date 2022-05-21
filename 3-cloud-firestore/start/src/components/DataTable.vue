@@ -1,5 +1,4 @@
 <script setup>
-import { defineProps } from 'vue';
 import DataTableHead from './DataTableHead.vue';
 import DataTableRowList from './DataTableRowList.vue';
 

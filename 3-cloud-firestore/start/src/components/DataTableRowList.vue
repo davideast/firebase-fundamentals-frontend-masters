@@ -1,5 +1,4 @@
 <script setup>
-import { defineProps } from 'vue';
 import DataTableRow from './DataTableRow.vue';
 const { values, numericColumns } = defineProps(['values', 'numericColumns']);
 </script>

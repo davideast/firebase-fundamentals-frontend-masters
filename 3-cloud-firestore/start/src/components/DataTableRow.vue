@@ -1,5 +1,4 @@
 <script setup>
-import { defineProps } from 'vue';
 import DataTableCell from './DataTableCell.vue';
 const { value, numericColumns } = defineProps(['value', 'numericColumns'])
 const keys = Object.keys(value);
