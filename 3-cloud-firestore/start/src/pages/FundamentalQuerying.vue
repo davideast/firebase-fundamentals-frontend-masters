@@ -61,17 +61,6 @@ onMounted(() => {
   //   orderBy('date', 'desc'),
   // );
 
-  // // 8. Get all expenses are categorized as 'food' that occurred in January 2021, 
-  // // but not on 12/26/2021 12/23/2021, or 12/28/2021
-  // expensesQuery = query(
-  //   expensesCol, 
-  //   where('category', '==', 'food'),
-  //   where('date', '>', new Date('11/31/2021')), 
-  //   where('date', '<', new Date('01/01/2022')), 
-  //   where('date', 'not-in', [new Date('12/26/2021'), new Date('12/23/2021'), new Date('12/28/2021')]),
-  //   orderBy('date', 'desc'),
-  // );
-
   bindToTable(expensesQuery);
 });
 

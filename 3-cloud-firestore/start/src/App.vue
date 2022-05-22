@@ -12,7 +12,6 @@ const { firestore } = getFirebase();
 const usersCol = collection(firestore, 'users');
 
 onMounted(() => {
-
   const sub = onSnapshot(usersCol, snapshot => {
     state.values = snapshot.docs.map((d) => {
       return {

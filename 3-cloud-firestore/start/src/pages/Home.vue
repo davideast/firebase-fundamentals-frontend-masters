@@ -5,19 +5,19 @@
       <h2>Exercises</h2>
       <ol>
         <li>
-          <router-link to="/reading-101">Reading Data 101</router-link>
+          <router-link to="/1/creating-realtime-streams">Creating realtime streams</router-link>
         </li>
         <li>
-          <router-link to="/querying-101">Querying Data 101</router-link>
+          <router-link to="/2/fundamental-querying">Fundamental querying</router-link>
         </li>
         <li>
-          <router-link to="/querying-201">Querying Data 201</router-link>
+          <router-link to="/3/querying-arrays">Querying arrays</router-link>
         </li>
         <li>
-          <router-link to="/querying-301">Querying Data 301</router-link>
+          <router-link to="/4/querying-arrays">Ranges and cursoring</router-link>
         </li>
         <li>
-          <router-link to="/querying-401">Querying Data 401</router-link>
+          <router-link to="/5/joins-denormalization">Denormalization</router-link>
         </li>
       </ol>
     </section>

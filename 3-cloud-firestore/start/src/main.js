@@ -2,18 +2,22 @@ import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue'
 import Home from './pages/Home.vue';
-import Reading101 from './pages/Reading101.vue';
-import Querying101 from './pages/Querying101.vue';
+import RealtimeStreams from './pages/RealtimeStreams.vue';
+import FundamentalQuerying from './pages/FundamentalQuerying.vue';
+import QueryingArrays from './pages/QueryingArrays.vue';
+import Denormalization from './pages/Denormalization.vue';
 import 'open-props/style';
 import 'open-props/normalize';
-import 'open-props/colors';
 import 'open-props/colors-hsl';
 import 'open-props/sizes';
 
 const routes = [
   { path: '/', component: Home },
-  { path: '/reading-101', component: Reading101 },
-  { path: '/querying-101', component: Querying101 },
+  { path: '/1/creating-realtime-streams', component: RealtimeStreams },
+  { path: '/2/fundamental-querying', component: FundamentalQuerying },
+  { path: '/3/querying-arrays', component: QueryingArrays },
+  { path: '/4/ranges-cursoring', component: RealtimeStreams },
+  { path: '/5/joins-denormalization', component: Denormalization },
 ]
 
 createApp(App)

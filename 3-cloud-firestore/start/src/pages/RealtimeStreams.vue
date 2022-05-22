@@ -9,23 +9,22 @@ const { firestore } = getFirebase();
 const usersCol = collection(firestore, 'users');
 let subscription = null;
 onMounted(() => {
-  subscription = onSnapshot(usersCol, snapshot => {
-    state.results = snapshot.docs.map((d) => {
-      const { first, last, highscore, city } = d.data();
-      const id = d.id;
-      const { fromCache } = d.metadata;
-      return {
-        id,
-        first,
-        last,
-        highscore,
-        city,
-        fromCache,
-      };
-    });
-  });
-
+  bindToTable(usersCol);
 });
+
+
+function bindToTable(query, transform) {
+  subscription = onSnapshot(query, snapshot => {
+    const callbackFn = transform == null ? formatUser : transform;
+    state.results = snapshot.docs.map(callbackFn);
+  });
+}
+
+function formatUser(docSnapshot) {
+  const { first, last, highscore, city } = docSnapshot.data();
+  const { fromCache } = docSnapshot.metadata;
+  return { id: docSnapshot.id, first, last, highscore, city, fromCache, };
+}
 
 onBeforeUnmount(() => {
   if(subscription != null) {
