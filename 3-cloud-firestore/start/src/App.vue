@@ -1,42 +1,11 @@
 <script setup>
-import { onMounted, reactive } from 'vue';
-import DataTable from './components/DataTable.vue'
-import { getFirebase } from './firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
-
-const state = reactive({
-  headings: [],
-  values: [],
-});
-const { firestore } = getFirebase();
-const usersCol = collection(firestore, 'users');
-
-onMounted(() => {
-  const sub = onSnapshot(usersCol, snapshot => {
-    state.values = snapshot.docs.map((d) => {
-      return {
-        id: d.id,
-        first: d.data().first,
-        last: d.data().last,
-        highscore: d.data().highscore,
-        city: d.data().city,
-      };
-    });
-  });
-
-})
-
-const headings = [
-  { value: 'id' },
-  { value: 'fist' }, 
-  { value: 'last' }, 
-  { value: 'highscore', type: 'numeric' }, 
-  { value: 'city' }
-];
+import { Suspense } from 'vue';
 </script>
 
 <template>
-  <router-view></router-view>
+  <Suspense>
+    <router-view></router-view>
+  </Suspense>
 </template>
 
 <style>

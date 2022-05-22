@@ -14,7 +14,7 @@
           <router-link to="/3/querying-arrays">Querying arrays</router-link>
         </li>
         <li>
-          <router-link to="/4/querying-arrays">Ranges and cursoring</router-link>
+          <router-link to="/4/ranges-cursoring">Ranges and cursoring</router-link>
         </li>
         <li>
           <router-link to="/5/joins-denormalization">Denormalization</router-link>
