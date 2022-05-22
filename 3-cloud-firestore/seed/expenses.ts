@@ -29,6 +29,34 @@ export async function seedExpensesInlineUid(users: Partial<{ uid: string }[]>, l
   return expenses;
 }
 
+export async function seedExpensesReference(users: Partial<{ uid: string }[]>, limit = 5000) {
+  const expenses = convertMockExpenseData(users).slice(0, limit)
+    .map(ex => ({ ...ex, user: usersCol.doc(ex.uid) }));
+  const batches = batchUp({
+    arrayData: expenses,
+    colRef: expensesCol,
+  });
+  await commitBatches(batches);
+  return expenses;
+}
+
+export async function seedExpensesDernormalized(users: Partial<{ uid: string, first: string; last: string; }[]>, limit = 2500) {
+  const expenses = convertMockExpenseData(users).slice(0, limit)
+    .map(ex => {
+      const user = users.find(u => u.uid === ex.uid);
+      const userRef = usersCol.doc(ex.uid);
+      return { ...ex, user, userRef };
+    });
+  const batches = batchUp({
+    arrayData: expenses,
+    colRef: expensesCol,
+  });
+  await commitBatches(batches);
+  return expenses;
+}
+
+
+
 export async function seedExpensesByMonth(users: Partial<{ uid: string }[]>, limit = 5000) {
   const expenses = convertMockExpenseData(users).slice(0, limit);
   const promises = expenses.map(expense => {
