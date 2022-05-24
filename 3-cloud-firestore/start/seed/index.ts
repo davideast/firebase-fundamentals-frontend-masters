@@ -1,4 +1,3 @@
-import { seedUsersForFirestore } from '../../../seed/users';
-import { seedExpensesDernormalized } from '../../../seed/expenses';
+import { seed } from '../../../seed';
 
-seedUsersForFirestore().then(seedExpensesDernormalized);
+seed().then(console.log);
