@@ -1,0 +1,135 @@
+---
+import Layout from './Layout.astro';
+import DividerGrid from '../components/DividerGrid.astro';
+
+export interface Props {
+  content: {
+    title: string;
+    order: number;
+    subtitle: string;
+    previous: {
+      name: string;
+      href: string;
+    },
+    next: {
+      name: string;
+      href: string;
+    },
+    astro: {
+      headers: any[];
+    }
+  };
+}
+
+const { content } = Astro.props as Props;
+---
+
+<Layout title={content.title}>
+  <div class="content-subgrid headline">
+    <div class="row">
+      <h2>{content.order} | {content.title}</h2> 
+      <p class="pull-text" set:html={content.subtitle}></p>
+    </div>
+    <nav>
+      <div>
+        <span>Prev:</span>
+        <a href={content.previous.href}>{content.previous.name}</a>
+      </div>
+      /
+      <div>
+        <span>Next:</span>
+        <a href={content.next.href}>{content.next.name}</a>
+      </div>
+    </nav>
+  </div>
+  <DividerGrid />
+
+  <div class="content-subgrid content">
+    <slot />
+  </div>
+  <div class="content-subgrid next-prev">
+    <nav>
+      <div>
+        Previous: <a href={content.previous.href}>{content.previous.name}</a>
+      </div>
+      <div>
+        Next: <a href={content.next.href}>{content.next.name}</a>
+      </div>
+    </nav>
+  </div>
+</Layout>
+
+<style>
+h2 {
+  font-size: clamp(2rem, 8vw - 1rem, 4.5rem);
+}
+
+:global(.content h4) {
+  grid-column: full;
+}
+
+:global(.content h4:not(:first-of-type)) {
+  margin-block-start: var(--space-md);
+}
+
+:global(.content > *) {
+  grid-column: content;
+}
+
+:global(.content p) {
+  line-height: 1.5;
+  margin-block-end: 28px;
+}
+
+:global(.content h4 + p) {
+  margin-block-start: var(--space-md);
+}
+
+:global(.content ul) {
+  list-style-type: disc;
+  padding-inline-start: var(--space-lg);
+  margin-block-end: 28px;
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.headline {
+  gap: var(--space-md);
+  margin-block-start: var(--space-3xl);
+}
+.row {
+  grid-column: full;
+}
+
+.headline nav {
+  display: flex;
+  gap: var(--space-md);
+  font-size: 1rem;
+  color: var(--gray-6);
+}
+
+.headline nav a {
+  text-decoration: underline;
+}
+
+.headline nav div {
+  display: flex;
+  gap: var(--space-xxs);
+}
+
+.next-prev {
+  grid-column: content;
+  margin-block: var(--space-3xl);
+}
+
+.next-prev nav {
+  display: flex;
+  justify-content: space-between;
+  color: var(--gray-6);
+}
+
+.next-prev nav a {
+  color: var(--orange-5);
+  text-decoration: underline;
+}
+</style>

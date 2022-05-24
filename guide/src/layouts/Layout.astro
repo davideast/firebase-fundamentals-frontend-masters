@@ -14,6 +14,8 @@ const { title } = Astro.props as Props;
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width">
   <link rel="stylesheet" href="/reset.css">
+  <link rel="stylesheet" href="/photo-quote.css">
+  <link rel="stylesheet" href="/code-callout.css">
 	<title>{title}</title>
   <Fonts />
 </head>
@@ -56,7 +58,7 @@ const { title } = Astro.props as Props;
     --text-sub: 1.25rem;
     --text: 1.125rem;
 
-    --content-grid-width: 1180px;
+    --content-grid-width: 1080px;
     --content-grid: [content-start full-start] min(680px, 100%) [content-end aside-start] 1fr [aside-end full-end];
 
     --space-4xl: 104px;
@@ -124,8 +126,18 @@ const { title } = Astro.props as Props;
     font-size: var(--pull);
     color: var(--gray-5);
   }
-  :global(.highlight) {
+  :global(.highlight, .content em) {
     color: var(--orange-5);
+  }
+  :global(.underline) {
+    text-decoration: underline;
+  }
+  :global(.weighty) {
+    font-weight: 600;
+  }
+  :global(.content a) {
+    color: var(--orange-5);
+    text-decoration: underline;
   }
   :global(p) {
     line-height: 1.5;

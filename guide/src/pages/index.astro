@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import DividerGrid from '../components/DividerGrid.astro';
 ---
 <Layout title="Firebase Fundamentals">
 	<main class="content-subgrid">
@@ -26,14 +27,12 @@ import Layout from '../layouts/Layout.astro';
 			A <span class="highlight">companion guide</span> to the Frontend Masters workshop.
 		</p>
 	</main>
-	<section class="divider-grid">
-		<div class="divider"></div>
-	</section>
+	<DividerGrid />
 	<section class="list-grid">
 		<h3>Workshop Sections</h3>
 		<ol>
 			<li>
-				<a href="#">Introduction</a>
+				<a href="/1-intro">Introduction</a>
 				<div>The architecture, libraries, and general workflow.</div>
 			</li>
 			<li>
@@ -94,19 +93,6 @@ import Layout from '../layouts/Layout.astro';
 	.bio-details-name {
 		font-weight: bold;
 		font-size: var(--text-lg);
-	}
-
-	.divider-grid {
-		display: grid;
-		margin-block: var(--space-3xl);
-		grid-column: full;
-	}
-
-	.divider-grid .divider {
-		height: 2px;
-		background-color: var(--orange-5);
-		border-radius: 1px;
-		width: 100%;
 	}
 
 	.list-grid {

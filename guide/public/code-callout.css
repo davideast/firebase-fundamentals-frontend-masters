@@ -1,0 +1,13 @@
+.content ul.code-callout {
+  list-style: none;
+  margin-inline: 0;
+  margin-block: var(--space-lg);
+  padding: 0;
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.content ul.code-callout li {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+}

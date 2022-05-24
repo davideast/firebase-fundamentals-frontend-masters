@@ -1,0 +1,24 @@
+figure.photo-quote {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  column-gap: var(--space-lg);
+  margin-block: var(--space-lg);
+}
+figure.photo-quote img {
+  max-height: 186px;
+  max-width: 186px;
+}
+figure.photo-quote figcaption {
+  display: grid;
+  gap: var(--space-xxs);
+}
+figure.photo-quote figcaption p {
+  font-size: 1.5rem;
+  margin: 0 !important;
+}
+figure.photo-quote figcaption p:nth-child(2) {
+  color: var(--gray-6);
+}

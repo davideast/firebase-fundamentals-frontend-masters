@@ -1,0 +1,32 @@
+---
+const { src, alt } = Astro.props;
+---
+
+<figure>
+  <img src={src} alt={alt} />
+  <figcaption>
+    <slot />
+  </figcaption>
+</figure>
+
+<style>
+figure {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+figure img {
+  max-height: 186px;
+  max-width: 186px;
+}
+figcaption {
+  display: grid;
+  gap: var(--space-lg);
+}
+figcaption p {
+  font-size: 1.5rem;
+}
+figcaption p:nth-child(2) {
+  color: var(--gray-5);
+}
+</style>
