@@ -4,19 +4,27 @@ import UserExcersize from '../components/UserExcersize.vue'
 import { getFirebase } from '../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 
-const state = reactive({ results: [] });
 const { firestore } = getFirebase();
 const usersCol = collection(firestore, 'users');
 let subscription = null;
-onMounted(() => {
-  bindToTable(usersCol);
-});
 
+const state = bindToTable(usersCol);
 
-function bindToTable(query, transform) {
-  subscription = onSnapshot(query, snapshot => {
-    const callbackFn = transform == null ? formatUser : transform;
-    state.results = snapshot.docs.map(callbackFn);
+function bindToTable(expensesQuery) {
+  const state = reactive({ results: [] });
+  let subscription = null;
+  onMounted(() => {
+    subscription = bindToState(state, expensesQuery);
+  });
+  onBeforeUnmount(() => {
+    subscription();
+  });
+  return state;
+}
+
+function bindToState(state, query, transform = formatUser) {
+  return onSnapshot(query, snapshot => {
+    state.results = snapshot.docs.map(transform);
   });
 }
 
@@ -25,12 +33,6 @@ function formatUser(docSnapshot) {
   const { fromCache } = docSnapshot.metadata;
   return { id: docSnapshot.id, first, last, highscore, city, fromCache, };
 }
-
-onBeforeUnmount(() => {
-  if(subscription != null) {
-    subscription();
-  }
-})
 </script>
 
 

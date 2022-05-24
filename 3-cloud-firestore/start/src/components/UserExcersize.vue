@@ -4,7 +4,7 @@ import DataTable from "./DataTable.vue";
 
 const { results, number, subtitle } = defineProps(['results', 'number', 'subtitle']);
 const headings = [
-  { value: "id" },
+  { value: "uid" },
   { value: "fist" },
   { value: "last" },
   { value: "highscore", type: "numeric" },
