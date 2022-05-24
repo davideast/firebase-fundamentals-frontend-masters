@@ -6,7 +6,6 @@ import { collection, onSnapshot } from 'firebase/firestore';
 
 const { firestore } = getFirebase();
 const usersCol = collection(firestore, 'users');
-let subscription = null;
 
 const state = bindToTable(usersCol);
 
@@ -23,15 +22,11 @@ function bindToTable(expensesQuery) {
 }
 
 function bindToState(state, query, transform = formatUser) {
-  return onSnapshot(query, snapshot => {
-    state.results = snapshot.docs.map(transform);
-  });
+  // 1. Create a realtime listener
 }
 
 function formatUser(docSnapshot) {
-  const { first, last, highscore, city } = docSnapshot.data();
-  const { fromCache } = docSnapshot.metadata;
-  return { id: docSnapshot.id, first, last, highscore, city, fromCache, };
+  // 2. Transform the object returned
 }
 </script>
 

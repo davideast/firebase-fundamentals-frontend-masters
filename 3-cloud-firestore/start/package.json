@@ -6,7 +6,7 @@
     "dev": "concurrently npm:emulators vite",
     "build": "vite build",
     "preview": "vite preview",
-    "emulators": "firebase emulators:start --only firestore,auth"
+    "emulators": "firebase emulators:start --only firestore,auth --import ./local"
   },
   "dependencies": {
     "firebase": "^9.8.1",
