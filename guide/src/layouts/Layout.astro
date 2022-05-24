@@ -1,0 +1,141 @@
+---
+import Fonts from '../components/Fonts.astro';
+
+export interface Props {
+  title: string;
+}
+
+const { title } = Astro.props as Props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="/reset.css">
+	<title>{title}</title>
+  <Fonts />
+</head>
+<body>
+  
+  <div class="site-container">
+    <div class="site-layout">
+      <div class="content-grid">
+        <slot />
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+
+<style>
+  :root {
+    --font-body: 'Google Sans Text', Arial, sans-serif;
+    --font-display: 'Google Sans Display', Arial, sans-serif;
+    --font-mono: 'Google Sans Mono', monospace;
+    --font-mono-code: 'JetBrains Mono', monospace;    
+
+    --black-5:  hsl(225, 6%, 13%);
+    --orange-5: hsl(45, 100%, 67%);
+    --orange-6: hsl(45, 100%, 58%);
+    --gray-5: hsl(0, 0%, 81%);
+    --gray-6: hsl(0, 0%, 74%);
+    --off-white: hsl(0, 0%, 95%);
+    --white: #fff;
+
+    --theme-bg: var(--black-5);
+    --theme-text: var(--off-white);
+
+    --h2: clamp(2.25rem, 8vw + 1rem, 6rem);
+    --h3: clamp(1.75rem, 8vw + 1rem, 3.5rem);
+    --h4: clamp(1.75rem, 8vw + 1rem, 2.5rem);
+    --pull: clamp(1.25rem, 8vw - 1rem, 2.75rem);
+    --text-lg: 1.5rem;
+    --text-sub: 1.25rem;
+    --text: 1.125rem;
+
+    --content-grid-width: 1180px;
+    --content-grid: [content-start full-start] min(680px, 100%) [content-end aside-start] 1fr [aside-end full-end];
+
+    --space-4xl: 104px;
+    --space-3xl: 80px;
+    --space-2xl: 64px;
+    --space-xl: 56px;
+    --space-lg: 40px;
+    --space-md: 32px;
+    --space-sm: 24px;
+    --space-xs: 16px;
+    --space-xxs: 8px;
+  }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background-color: var(--theme-bg);
+    color: var(--theme-text);
+    font-family: var(--font-body);
+    font-size: var(--text);
+  }
+
+  .site-container {
+    display: flex;
+    justify-content: center;
+    position: relative;
+  }
+
+  .site-layout {
+    width: 100%;
+    max-width: var(--content-grid-width);
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: var(--content-grid);
+    margin: 0 16px;
+  }
+
+  :global(.content-subgrid) {
+    display: grid;
+    grid-template-columns: var(--content-grid);
+    grid-column: 1 / -1;
+  }
+
+  :global(h1,h2,h3,h4,h5) {
+    font-family: var(--font-mono);
+    font-weight: bold;
+    line-height: 1.25;
+  }
+  :global(h2) {
+    font-size: var(--h2);
+  }
+  :global(h3) {
+    font-size: var(--h3);
+  }
+  :global(h4) {
+    font-size: var(--h4);
+  }
+  :global(h3:before), :global(h4:before) {
+    content: '>';
+    padding-inline-end: var(--space-sm);
+  }
+  :global(.pull-text) {
+    font-size: var(--pull);
+    color: var(--gray-5);
+  }
+  :global(.highlight) {
+    color: var(--orange-5);
+  }
+  :global(p) {
+    line-height: 1.5;
+  }
+  :global(a) {
+    color: var(--gray-5);
+    text-decoration: none;
+  }
+  :global(a:hover) {
+    color: var(--orange-5);
+    text-decoration: underline;
+  }
+</style>

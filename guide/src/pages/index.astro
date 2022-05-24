@@ -1,0 +1,143 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Firebase Fundamentals">
+	<main class="content-subgrid">
+		<div class="title-group">
+			<h2>Firebase <span class="highlight">Fundamentals</span></h2>
+
+			<div class="bio">
+
+				<div class="bio-image">
+					<img src="/de-profile.png" alt="David East" />
+				</div>
+
+				<div class="bio-details">
+					<div class="bio-details-name">David East</div>
+					<div class="bio-details-role">
+						Developer Relations Engineer, <span class="highlight">Firebase</span>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+		<p class="pull-text subtitle">
+			A <span class="highlight">companion guide</span> to the Frontend Masters workshop.
+		</p>
+	</main>
+	<section class="divider-grid">
+		<div class="divider"></div>
+	</section>
+	<section class="list-grid">
+		<h3>Workshop Sections</h3>
+		<ol>
+			<li>
+				<a href="#">Introduction</a>
+				<div>The architecture, libraries, and general workflow.</div>
+			</li>
+			<li>
+				<a href="#">Setting up a Firebase Project</a>
+				<div>Working from best practices: Emulators, security, and preview channels.</div>
+			</li>
+			<li>
+				<a href="#">Cloud Firestore</a>
+				<div>Realtime streams, advanced querying, and when to denormalize.</div>
+			</li>
+			<li>
+				<a href="#">Firebase Authentication</a>
+				<div>Authenticating users, linking accounts, and admin operations.</div>
+			</li>
+			<li>
+				<a href="#">Security Rules</a>
+				<div>The syntax, common patterns, and role based access control.</div>
+			</li>
+			<li>
+				<a href="#">Cloud Functions</a>
+				<div>Triggers, denormalization, and server-side hosting.</div>
+			</li>
+		</ol>
+	</section>
+</Layout>
+
+<style>
+	.subtitle {
+		grid-column: full;
+		margin-block-start: var(--space-md);
+	}
+
+	.content-subgrid {
+		margin-block-start: var(--space-3xl);
+		gap: var(--space-xl);
+	}
+
+	.title-group {
+		display: grid;
+		gap: var(--space-xl);
+	}
+
+	.bio {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+	}
+
+	.bio-image img {
+		width: 88px;
+	}
+
+	.bio-details {
+		font-family: var(--font-mono);
+		display: grid;
+		gap: var(--space-xs);
+	}
+	.bio-details-name {
+		font-weight: bold;
+		font-size: var(--text-lg);
+	}
+
+	.divider-grid {
+		display: grid;
+		margin-block: var(--space-3xl);
+		grid-column: full;
+	}
+
+	.divider-grid .divider {
+		height: 2px;
+		background-color: var(--orange-5);
+		border-radius: 1px;
+		width: 100%;
+	}
+
+	.list-grid {
+		display: grid;
+		grid-column: 1 / -1;
+		gap: var(--space-xl);
+		margin-block-end: var(--space-3xl);
+	}
+
+	.list-grid ol {
+		display: grid;
+		gap: var(--space-lg);
+		counter-reset: item;
+	}
+	.list-grid ol li:before {
+		content: counter(item) "|";
+  	counter-increment: item;
+		color: var(--orange-5);
+		padding-inline-end: var(--space-xxs);
+	}
+	.list-grid ol li a {
+		font-size: var(--text-sub);
+		color: var(--off-white);
+	}
+	.list-grid ol li a:hover {
+		color: var(--orange-5);
+	}
+	.list-grid ol li div {
+		color: var(--gray-5);
+		margin-block-start: var(--space-xxs);
+		padding-inline-start: 28px;
+		line-height: 1.25;
+	}
+</style>
