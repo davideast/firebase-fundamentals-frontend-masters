@@ -27,7 +27,7 @@ const { content } = Astro.props as Props;
 <Layout title={content.title}>
   <div class="content-subgrid headline">
     <div class="row">
-      <h2>{content.order} | {content.title}</h2> 
+      <h2>{content.order}| {content.title}</h2> 
       <p class="pull-text" set:html={content.subtitle}></p>
     </div>
     <nav>
@@ -62,6 +62,7 @@ const { content } = Astro.props as Props;
 <style>
 h2 {
   font-size: clamp(2rem, 8vw - 1rem, 4.5rem);
+  margin-block-end: var(--space-xs);
 }
 
 :global(.content h4) {
@@ -91,6 +92,11 @@ h2 {
   margin-block-end: 28px;
   display: grid;
   gap: var(--space-sm);
+}
+
+:global(.content img) {
+  margin-block: var(--space-lg);
+  max-width: 100%;
 }
 
 .headline {
