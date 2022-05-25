@@ -1,0 +1,67 @@
+---
+// import { Debug } from 'astro/components'
+import { Header } from '../types';
+import ContentListItem from './ContentListItem.astro';
+const props = Astro.props;
+
+function structureHeaders(headers: Header[]) {
+  let structured = []
+  let currentParent = null
+  for (let [index, header] of headers.entries()) {
+    if (index === 0) {
+      header.children = []
+      structured = [...structured, header]
+      currentParent = header
+      continue
+    }
+
+    // Is the header depth "greater" than its parent and therefore
+    // a "smaller" header?
+    if (currentParent.depth < header.depth) {
+      currentParent.children = [...currentParent.children, header]
+    } else if (currentParent.depth === header.depth) {
+      header.children = []
+      structured = [...structured, header]
+      currentParent = header
+    }
+  }
+  return structured
+}
+
+const headers = structureHeaders(props.headers);
+---
+
+<aside>
+  <nav>
+    <h6>Table of Contents</h6>
+    <ul>
+      {headers.map((header) => (
+        <ContentListItem header={header} pathname={props.pathname} />
+      ))}
+      </ul>
+  </nav>
+</aside>  
+
+<style>
+h6 {
+  margin-block-end: 20px;
+}
+aside {
+  grid-column: aside;
+  grid-row: 1 / span 2000;
+  z-index: 1;
+}
+
+aside ul {
+  list-style-type: none;
+  padding: 0;
+  margin-inline: 0;
+  display: grid;
+  gap: 32px;
+}
+
+aside nav {
+  display: flex;
+  flex-direction: column;
+}
+</style>

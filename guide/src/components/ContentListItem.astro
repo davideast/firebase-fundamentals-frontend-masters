@@ -1,0 +1,61 @@
+---
+import { Header } from '../types';
+
+const { header, pathname } = Astro.props as { header: Header; pathname: string; };
+const hasChildren = header.children.length > 0;
+---
+
+<li class="heading">
+  <a href={`${pathname}#${header.slug}`} class="h4Section">
+    {header.text}
+  </a>
+  
+  {hasChildren && <ul>
+    {header.children.map((c) => (
+      <li class="sub-heading">
+        <a href={`${pathname}#${c.slug}`} class="h5Section">
+          {c.text}
+        </a>
+      </li>
+    ))}
+  </ul>}
+
+</li>
+
+<style>
+ul {
+  list-style-type: none;
+  gap: 0;
+  margin-inline: 0;
+  padding-inline-start: 16px;
+  margin-block-end: 0;
+  display: grid;
+  gap: 16px;
+}
+.h4Section, .h5Section {
+  font-family: var(--font-mono);
+  color: var(--gray-6);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.h4Section {
+  color: var(--gray-5);
+  font-size: .875rem;
+  margin-block-end: 4px;
+}
+
+li {
+  display: grid;
+  gap: 16px;
+}
+
+li a:hover {
+  text-decoration: underline;
+  color: var(--orange-5);
+}
+
+ul li a.h5Section {
+  font-size: .75rem;
+}
+</style>

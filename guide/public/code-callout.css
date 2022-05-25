@@ -5,7 +5,7 @@
   padding: 0;
   display: grid;
   gap: var(--space-xs);
-  grid-column: full;
+  grid-column: content;
 }
 
 .content ul.code-callout li {

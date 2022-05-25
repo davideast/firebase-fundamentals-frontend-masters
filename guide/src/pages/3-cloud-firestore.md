@@ -11,61 +11,31 @@ next:
   href: /4-firebase-authentication
 ---
 
-#### Working with data
-Okay so now we have an ideal local workspace for Firebase development. Up until this point we've been covering Firebase from a general point of view. From here on out, we'll be getting really specific and focusing on individual products and their features. 
+Up until this point we've been covering Firebase from a general point of view. From here on out, we'll be getting really specific and focusing on individual products and their features. 
 
 We saw that with security it's really important to have authentication figured out. But! We're going to start with the database, because well that's the fun part.
 
-#### Intro to Firestore and NoSQL 
+#### SQL and NoSQL
+
+
+##### Tables and Collections 
 Firestore is a NoSQL document database, with realtime and offline capabilities. So what does that mean? Well, I'm going to start by comparing it to a SQL database, because that's what most people are familiar with.
 
+##### Rows & Columns, Documents & Fields
 In a SQL database you store data in tables. You can think of tables in two dimensions: rows and columns. Rows are a single record or object within the table. Columns are the properties on that object. Columns provide a rigid but high level of integrity to your data structure. You can't add a single column onto a single row. If a new column is created, every row gets that column even if the value is just null.
 
 NoSQL databases are a bit different. Firestore consists of documents, which are like enhanced objects. They're not just basic JSON objects, they can store complex types of data like binary data, references to other documents, timestamps, geo-coordinates, and so on and so forth. Now in SQL all rows had to have the same columns. But that's not the case in NoSQL every document can have whatever structure it wants. Each document can be totally different from the other if you want. That's usually not the case in practice, but you have total flexibility at the database level. You can lock down the schema with security rules, but we'll get into that later.
 
-So instead of `SELECT * from tbl_users` you use the Firebase SDK to write something like `collection(db, 'users')`. Where things really start to diverge is in how data is structured.
+#### Data types
 
-#### Simple Normalization
+##### Core types
 
-```sql
--- Can I have the user data and all of their expenses data as well? kthx!
-SELECT e.id, e.cost, e.date, u.user_id, u.first, u.last 
-FROM tbl_expenses as e
-INNER JOIN tbl_users as u ON e.user_id = u.id
-WHERE e.user_id = 'david';
-```
-
-A cornerstone of SQL is data normalization. Normalization seeks to ensure that data is not duplicated across the database. This is commonly done through the use of foreign keys. Each row has a column that corresponds to another record in another table. In this case we have `tbl_users` and `tbl_expenses`. Each expense row has a `user_id` column that corresponds to a record in the users table. Referencing the data in a foreign key keeps the data from being duplicated, and possibly inconsistent, throughout the database. But what it does do, is it requires a query to build the result set of data. A query is pretty much a question:
-
-This computes a result set back with all the data needed. Each time we need to ask this question we'll have to run this query, but we won't have to duplicate the data needed. NoSQL is a bit different.
-
-#### Simple Denormalization
-In NoSQL databases you rely less on queries and more straightforward read operations. Let's remodel this the expenses app for a NoSQL database:
-
-```txt
-/users/{uid}
-  - { first, last, birthday }
-/expenses/{expenseId}
-  - { cost, date, category, uid, first, last }
-```
-
-```js
-getDocs(collection(db, 'expenses'))
-```
-
-Here we have two collections, users are indexed using the userId key. When I say "indexed" I mean what key are we using to find the record? In this case we are using the "userId" key to find a specific user. Expenses are indexed using a generated expenseId key. If you look at expenses, it has the expense data but also the user data as well. So getting the data is easy as…
-
-No real "query" is needed. No where statements, or other clauses. Now I can feel my ears burning which tells me that some of you out there are completely aghast to the data duplication going on. You might be saying "What if the user updates their name or other information! That data is going to be inconsistent!" Well, that's true. With NoSQL databases you do need to update that user data in every expense record. That's a technique known as fanout. However, this isn't as bad of a concept as you might think. Fanout works really well in the case where data is rarely updated, much like a user's name. Also fanout can be done without locking up the database, so the user can continue to use their app while the data is updating. There's no wait time unlike a query.
-
-#### The denormalization spectrum
-Now this is a contrived situation. In reality, I would not use fanout in this data structure. This is a 1-to-many data model. One user, many expenses. I would simply read the user data first, and then get their expenses. Just because you're using a NoSQL database doesn't always mean you have to go full onboard the denormalization train. A lot of developers coming from SQL are worried that if they use a NoSQL database they'll have to pre-compute all their queries and into structures and fan out every data update for the rest of their life. But that's not the case.
-
-Denormalization isn't a rigid specification, it's a spectrum. You decide how much data duplication is needed, if at all. While Firestore is not like a SQL database, it does have a sizable set of query features that help you find your right spot in this spectrum. And the awesome thing about Firestore, is that while the query capabilities are limited, the queries are designed to be fast and scalable. This means it's a lot harder to write a query that will take forever to compute. And actually the way queries work in Firestore is that: The time it takes to run a query is proportional to the number of results you get back, not the number of documents you're searching through.
-
-With all of the NoSQL primer out of the way let's get into how we get data.
+##### Complex types
 
 #### Retrieving data
 With SQL you think about retrieving data in terms of queries. While that is still true here, you should primarily think about data in terms of locations with path names. In the JavaScript SDK we call this a reference.
+
+##### References
 
 ```js
 const usersCollectionReference = collection(db, 'users');
@@ -78,6 +48,8 @@ const userDoc = doc(db, 'users/david');
 Both of those references will allow you to get all of the data at that location. For collections, we can query to restrict the result set down a bit more. For single documents, you retrieve the whole document so there's no querying needed.
 
 With a reference made, we have a decision to make. Do we want to get the data one time, or do we want the realtime synchronized data state every time there's an update at that location? The realtime option sounds fun, so let's do that first.
+
+##### onSnapshot()
 
 ```js
 onSnapshot(userDoc, snapshot => {
@@ -121,6 +93,8 @@ updateDoc(userDoc, { name: 'David!' });
 
 This isn't just local, this callback fires across all connected devices. Speaking of updates. What we see right here is one of the several update functions or as we call them mutation functions.
 
+##### Mutation functions
+
 - `setDoc()`
 - `updateDoc()`
 - `deleteDoc()`
@@ -140,7 +114,7 @@ setDoc(newDoc, { name: 'Fiona' }); // Now it's sent to the server
 
 Now there's one thing you should notice here. We're making updates to the server, but nowhere are we awaiting the result of the update. It's still an async operation, but why aren't we awaiting the result?
 
-#### Updates, Synchronization, & Unidirectional data-flow
+##### Synchronization
 I'm about to dive into one of the core principles of the Firebase SDKs: unidirectional data-flow. If you've ever used React, Redux, or something similar you'll be familiar with this concept.
 
 In a CRUD like system you'll make a request to a server to create a resource and get the result back in the response.
@@ -201,6 +175,8 @@ I strongly recommend not using `await` for mutation functions and getting the re
 
 Don't think in terms of "request/response", think in terms of triggering or dispatching updates to a central store. This is especially useful when dealing with collections. 
 
+##### Document change types
+
 Remember how I told you that the `Snapshot` was really useful? Get used to me saying that, because I'm going to be saying it often. Rather than just getting the data outright, you can also see the changes happening since the listener was created using `snapshot.docChanges`.
 
 ```js
@@ -223,7 +199,7 @@ In this case when we add a new user it will fire the callback of `onSnapshot()`,
 
 And that's not all you can get from a `Snapshot`. I don't know if I said this, but it's really useful.
 
-#### The Cache
+##### The Cache
 One of the important properties of a snapshot is metadata. 
 
 ```js
@@ -252,7 +228,7 @@ This tells you information about whether the data has been sent to the server an
 
 As you can see, Firestore is really powerful when it comes to realtime synchronization and offline capabilities. We haven't even begun to see querying yet either, but don't worry, it's just up ahead.
 
-#### Exercise: Creating realtime streams
+##### Exercise
 Let's take a break to write some code. I'll start with a small demo and I'll have you repeat after me.
 
 <ul class="code-callout">
@@ -264,13 +240,10 @@ Let's take a break to write some code. I'll start with a small demo and I'll hav
 
 Once we're done. We'll get into querying.
 
-#### Querying
+#### Simple queries
 Cloud Firestore is designed to scale up queries despite the number of documents it queries. A Firestore query has to search through `50` documents to only return `5`, will roughly be the same as a query that searches through `5,000,000` that also only returns `5`. These queries have to be fast every time not only because fast is good, but also because these queries have to work in realtime as well. Every query you can formulate in Firestore works with `onSnapshot()` for realtime streams and also works offline as well.
 
-In Cloud Firestore we mainly have _two types_ of queries: _simple_ and _composite_.
-
-#### Simple Queries
-Simple queries involve querying based on one field.
+In Cloud Firestore we mainly have _two types_ of queries: _simple_ and _composite_. _Simple queries_ involve querying based on _one field_.
 
 ```js
 import { collection, query, where, limit, getFirestore } from 'firebase/firestore';
@@ -315,7 +288,6 @@ let expensesQuery = query(
   where('user.city', 'in', ['Maputo', 'Buenos Aires', 'Santiago']),
   limit(100)
 );
-
 ```
 
 Still only using one field, we're looking for all expenses for users located in three cities. What about the opposite? Can we query based on a not-equals clause?
@@ -339,10 +311,10 @@ This will exclude all these cities from the query. It's worth mentioning that th
 
 Some segue into query operators.
 
-#### Equality Operators
+##### Equality Operators
 Blah. Blah.
 
-#### Inequality Operators
+##### Inequality Operators
 Blah. Blah.
 
 #### Composite Queries
@@ -360,7 +332,7 @@ const expensesQuery = query(
 
 The catch is that these queries require a special index called a composite index. Fortunately these indexes can be automatically created for you. When you run a composite query that doesn't have an index created we'll log out a link to the browser console for you to click on and then create a new index.
 
-#### Exercise: Fundamental querying
+##### Exercise
 Exercise time! Let's write some queries! Back the same 
 
 <ul class="code-callout">
@@ -409,7 +381,7 @@ I mean this works, but it's not great. Instead we can use arrays.
 
 In Firestore we have special queries for arrays.
 
-#### array-contains
+##### array-contains
 The `array-contains` operator allows you to query for documents using the values within an array.
 
 ```js
@@ -422,7 +394,7 @@ const expenseQuery = query(
 
 This query will return expenses which contain the `category` of `'fun'`. This is great when you have a use case for `AND` style queries. But if you need to find a document with more than one value, you need an `OR` style query.
 
-#### array-contains-any
+##### array-contains-any
 Using `array-contains-any` you can find documents by multiple `OR` values in an array.
 
 ```js
@@ -435,10 +407,10 @@ expensesQuery = query(
 
 The result of this query will return expenses that contain the category of `'fun'` or `'kids'`. You might end up getting back an expense tagged as `'kids'` and 'transportation', maybe `'fun'` and 'food', or in some cases you'll get `'fun'` and `'kids'` if that pair exists.
 
-#### in, not-in
+##### in, not-in
 We saw this a bit before, but in and not-in can also be used on arrays.
 
-#### Exercise: Querying arrays
+##### Exercise
 Let's dive back into the code 
 
 <ul class="code-callout">
@@ -453,7 +425,7 @@ Now this whole time we've been getting back an entire dataset or we've been limi
 #### Range and Cursor queries
 It's unlikely that you'll want to get all of your data back.
 
-#### Exercise: Ranges and cursoring
+##### Exercise
 Go to the code for this.
 
 <ul class="code-callout">
@@ -463,10 +435,52 @@ Go to the code for this.
   <li>http://localhost:3000/5/ranges-cursoring</li>
 </ul>
 
-#### Use Firestore's Hierarchy
+#### Hierarchy, normalization, denormalization
 Talk about how hierarchy is good for keys and stuff like that.
 
-#### Exercise: Collection Group Queries
+##### Normalization
+```sql
+-- Can I have the user data and all of their expenses data as well? kthx!
+SELECT e.id, e.cost, e.date, u.user_id, u.first, u.last 
+FROM tbl_expenses as e
+INNER JOIN tbl_users as u ON e.user_id = u.id
+WHERE e.user_id = 'david';
+```
+
+A cornerstone of SQL is data normalization. Normalization seeks to ensure that data is not duplicated across the database. This is commonly done through the use of foreign keys. Each row has a column that corresponds to another record in another table. In this case we have `tbl_users` and `tbl_expenses`. Each expense row has a `user_id` column that corresponds to a record in the users table. Referencing the data in a foreign key keeps the data from being duplicated, and possibly inconsistent, throughout the database. But what it does do, is it requires a query to build the result set of data. A query is pretty much a question:
+
+This computes a result set back with all the data needed. Each time we need to ask this question we'll have to run this query, but we won't have to duplicate the data needed. NoSQL is a bit different.
+
+#### Denormalization
+In NoSQL databases you rely less on queries and more straightforward read operations. Let's remodel this the expenses app for a NoSQL database:
+
+```txt
+/users/{uid}
+  - { first, last, birthday }
+/expenses/{expenseId}
+  - { cost, date, category, uid, first, last }
+```
+
+```js
+getDocs(collection(db, 'expenses'))
+```
+
+Here we have two collections, users are indexed using the userId key. When I say "indexed" I mean what key are we using to find the record? In this case we are using the "userId" key to find a specific user. Expenses are indexed using a generated expenseId key. If you look at expenses, it has the expense data but also the user data as well. So getting the data is easy as…
+
+No real "query" is needed. No where statements, or other clauses. Now I can feel my ears burning which tells me that some of you out there are completely aghast to the data duplication going on. You might be saying "What if the user updates their name or other information! That data is going to be inconsistent!" Well, that's true. With NoSQL databases you do need to update that user data in every expense record. That's a technique known as fanout. However, this isn't as bad of a concept as you might think. Fanout works really well in the case where data is rarely updated, much like a user's name. Also fanout can be done without locking up the database, so the user can continue to use their app while the data is updating. There's no wait time unlike a query.
+
+#### The denormalization spectrum
+Now this is a contrived situation. In reality, I would not use fanout in this data structure. This is a 1-to-many data model. One user, many expenses. I would simply read the user data first, and then get their expenses. Just because you're using a NoSQL database doesn't always mean you have to go full onboard the denormalization train. A lot of developers coming from SQL are worried that if they use a NoSQL database they'll have to pre-compute all their queries and into structures and fan out every data update for the rest of their life. But that's not the case.
+
+Denormalization isn't a rigid specification, it's a spectrum. You decide how much data duplication is needed, if at all. While Firestore is not like a SQL database, it does have a sizable set of query features that help you find your right spot in this spectrum. And the awesome thing about Firestore, is that while the query capabilities are limited, the queries are designed to be fast and scalable. This means it's a lot harder to write a query that will take forever to compute. And actually the way queries work in Firestore is that: The time it takes to run a query is proportional to the number of results you get back, not the number of documents you're searching through.
+
+With all of the NoSQL primer out of the way, let's take a look at the types that make up the data.
+
+##### Hierarchy
+
+##### Collection Group Queries
+
+##### Exercise
 Go to the code for this.
 
 <ul class="code-callout">
