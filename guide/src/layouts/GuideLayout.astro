@@ -2,7 +2,6 @@
 import Layout from './Layout.astro';
 import DividerGrid from '../components/DividerGrid.astro';
 import TableOfContents from '../components/TableOfContents.astro';
-import { Debug } from 'astro/components';
 
 export interface Props {
   content: {
@@ -70,7 +69,7 @@ h2 {
 }
 
 .content {
-  column-gap: var(--space-xl);
+  column-gap: 112px;
 }
 
 :global(.content h4) {
@@ -84,7 +83,7 @@ h2 {
   color: var(--gray-5);
 }
 
-:globa(.content p + .astro-code) {
+:global(.content p + .astro-code) {
   margin-block-start: var(--space-xxs);
 }
 
@@ -132,6 +131,7 @@ h2 {
   gap: var(--space-md);
   font-size: 1rem;
   color: var(--gray-6);
+  flex-wrap: wrap;
 }
 
 .headline nav a {
@@ -173,6 +173,13 @@ h2 {
 }
 
 :global(p + .astro-code) {
-    margin-block: 0 var(--space-lg);
+  margin-block: 0 var(--space-lg);
+}
+
+@media(max-width: 1060px) {
+  :global(.astro-code) {
+    grid-column: content;
+    margin-inline-end: 0px;
+  }
 }
 </style>

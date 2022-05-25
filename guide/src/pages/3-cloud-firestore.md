@@ -16,13 +16,19 @@ Up until this point we've been covering Firebase from a general point of view. F
 We saw that with security it's really important to have authentication figured out. But! We're going to start with the database, because well that's the fun part.
 
 #### SQL and NoSQL
+Firestore is a NoSQL document database, with realtime and offline capabilities. Firestore is designed to not allow slow queries. In fact, if you manage to write a slow query with Firestore it's likely because you're downloading too many documents at once. With Firestore you can query for data, and receive updates within `500ms` every time a data updates within the database. 
 
+Many developers come to NoSQL with at least some SQL experience. They are used to a world of schemas, normalization, joins, and rich querying features. NoSQL tends to be a bit of jarring experience at first because it has different priorities. With Firestore we priorize database reads over writes. In a SQL world uniformity and reducing data duplication are at the utmost priority.
+
+READS / WRITES
+
+This is shown with the basic data structures.
 
 ##### Tables and Collections 
-Firestore is a NoSQL document database, with realtime and offline capabilities. So what does that mean? Well, I'm going to start by comparing it to a SQL database, because that's what most people are familiar with.
+SQL databases use tables to structure data.
 
 ##### Rows & Columns, Documents & Fields
-In a SQL database you store data in tables. You can think of tables in two dimensions: rows and columns. Rows are a single record or object within the table. Columns are the properties on that object. Columns provide a rigid but high level of integrity to your data structure. You can't add a single column onto a single row. If a new column is created, every row gets that column even if the value is just null.
+You can think of tables in two dimensions: rows and columns. Rows are a single record or object within the table. Columns are the properties on that object. Columns provide a rigid but high level of integrity to your data structure. You can't add a single column onto a single row. If a new column is created, every row gets that column even if the value is just null.
 
 NoSQL databases are a bit different. Firestore consists of documents, which are like enhanced objects. They're not just basic JSON objects, they can store complex types of data like binary data, references to other documents, timestamps, geo-coordinates, and so on and so forth. Now in SQL all rows had to have the same columns. But that's not the case in NoSQL every document can have whatever structure it wants. Each document can be totally different from the other if you want. That's usually not the case in practice, but you have total flexibility at the database level. You can lock down the schema with security rules, but we'll get into that later.
 
@@ -37,6 +43,8 @@ With SQL you think about retrieving data in terms of queries. While that is stil
 
 ##### References
 
+Documents and collections are identified by a unique path, to refer to this location you create a reference.
+
 ```js
 const usersCollectionReference = collection(db, 'users');
 // or for short
@@ -47,9 +55,8 @@ const userDoc = doc(db, 'users/david');
 
 Both of those references will allow you to get all of the data at that location. For collections, we can query to restrict the result set down a bit more. For single documents, you retrieve the whole document so there's no querying needed.
 
-With a reference made, we have a decision to make. Do we want to get the data one time, or do we want the realtime synchronized data state every time there's an update at that location? The realtime option sounds fun, so let's do that first.
-
 ##### onSnapshot()
+With a reference made, we have a decision to make. Do we want to get the data one time, or do we want the realtime synchronized data state every time there's an update at that location? The realtime option sounds fun, so let's do that first.
 
 ```js
 onSnapshot(userDoc, snapshot => {
@@ -91,9 +98,10 @@ onSnapshot(userDoc, snapshot => {
 updateDoc(userDoc, { name: 'David!' });
 ```
 
-This isn't just local, this callback fires across all connected devices. Speaking of updates. What we see right here is one of the several update functions or as we call them mutation functions.
+This isn't just local, this callback fires across all connected devices.
 
 ##### Mutation functions
+Speaking of updates. What we see right here is one of the several update functions or as we call them mutation functions.
 
 - `setDoc()`
 - `updateDoc()`

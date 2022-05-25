@@ -6,6 +6,7 @@
   display: grid;
   gap: var(--space-xs);
   grid-column: content;
+  word-break: break-word;
 }
 
 .content ul.code-callout li {

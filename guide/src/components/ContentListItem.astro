@@ -10,7 +10,7 @@ const hasChildren = header.children.length > 0;
     {header.text}
   </a>
   
-  {hasChildren && <ul>
+  {hasChildren && <ul class="sub-ul">
     {header.children.map((c) => (
       <li class="sub-heading">
         <a href={`${pathname}#${c.slug}`} class="h5Section">
@@ -32,6 +32,20 @@ ul {
   display: grid;
   gap: 16px;
 }
+ul.sub-ul {
+  position: relative;
+}
+ul.sub-ul::before {
+  content: '';
+  position: absolute;
+  height: 90%;
+  width: 2px;
+  background-color: var(--gray-5);
+  opacity: .8;
+  top: 5%;
+  left: 8px;
+  display: flex;
+}
 .h4Section, .h5Section {
   font-family: var(--font-mono);
   color: var(--gray-6);
@@ -40,10 +54,10 @@ ul {
 }
 
 .h4Section {
-  color: var(--gray-5);
+  color: var(--gray-3);
   font-size: .875rem;
-  margin-block-end: 4px;
 }
+
 
 li {
   display: grid;
@@ -53,6 +67,10 @@ li {
 li a:hover {
   text-decoration: underline;
   color: var(--orange-5);
+}
+
+.sub-heading {
+  padding-inline-start: 12px;
 }
 
 ul li a.h5Section {
