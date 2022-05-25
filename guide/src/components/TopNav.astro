@@ -27,10 +27,16 @@
 <style>
 nav {
   margin-block: var(--space-lg);
+  margin-inline: 16px;
 }
 nav ul {
   display: flex;
   gap: var(--space-md);
   justify-content: flex-end;
+}
+@media(max-width: 676px) {
+  nav {
+    display: none;
+  }
 }
 </style>

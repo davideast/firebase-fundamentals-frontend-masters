@@ -57,7 +57,7 @@ const { title } = Astro.props as Props;
     --h2: clamp(2.25rem, 8vw + 1rem, 6rem);
     --h3: clamp(1.75rem, 8vw + 1rem, 3.5rem);
     --h4: clamp(1.75rem, 8vw + 1rem, 2.25rem);
-    --pull: clamp(1.125rem, 1vw - 1rem, 2.75rem);
+    --pull: clamp(1.125rem, 8vw - 1rem, 2.75rem);
     --text-lg: 1.5rem;
     --text-sub: 1.25rem;
     --text: 1.125rem;
@@ -113,18 +113,22 @@ const { title } = Astro.props as Props;
     font-family: var(--font-mono);
     font-weight: bold;
     line-height: 1.25;
+    position: relative;
   }
   :global(h2) {
     font-size: var(--h2);
   }
   :global(h3) {
     font-size: var(--h3);
+    position: relative;
   }
   :global(h4) {
     font-size: var(--h4);
   }
   :global(h3:before), :global(h4:before) {
     content: '>';
+    position: absolute;
+    left: -56px;
     padding-inline-end: var(--space-sm);
   }
   :global(.pull-text) {
