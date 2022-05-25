@@ -29,16 +29,17 @@ function structureHeaders(headers: Header[]) {
 }
 
 const headers = structureHeaders(props.headers);
+const navClass = props.headers.length > 12 ? '' : 'sticky';
 ---
 
 <aside>
-  <nav>
+  <nav class={navClass}>
     <h6>Table of Contents</h6>
     <ul>
       {headers.map((header) => (
         <ContentListItem header={header} pathname={props.pathname} />
       ))}
-      </ul>
+    </ul>
   </nav>
 </aside>  
 
@@ -50,6 +51,11 @@ aside {
   grid-column: aside;
   grid-row: 1 / span 2000;
   z-index: 1;
+}
+
+aside nav.sticky {
+  position: sticky;
+  top: 16px;
 }
 
 aside ul {

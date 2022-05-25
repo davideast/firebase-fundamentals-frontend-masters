@@ -15,37 +15,73 @@ Up until this point we've been covering Firebase from a general point of view. F
 
 We saw that with security it's really important to have authentication figured out. But! We're going to start with the database, because well that's the fun part.
 
+#### What is Firestore?
+Firestore is a _NoSQL_ document database, with _realtime_ and _offline_ capabilities. Firestore is designed to reduce if not eliminate slow queries. In fact, if you manage to write a slow query with Firestore it's likely because you're downloading too many documents at once. With Firestore you can query for data, and receive updates within `500ms` every time a data updates within the database. 
+
+Firestore is extremely powerful, but there's a bit of a perspective shift if you're coming from a SQL background.
+
 #### SQL and NoSQL
-Firestore is a NoSQL document database, with realtime and offline capabilities. Firestore is designed to not allow slow queries. In fact, if you manage to write a slow query with Firestore it's likely because you're downloading too many documents at once. With Firestore you can query for data, and receive updates within `500ms` every time a data updates within the database. 
+Many developers come to NoSQL with at least some SQL experience. They are used to a world of schemas, normalization, joins, and rich querying features. NoSQL tends to be a bit of jarring experience at first because it has different priorities. SQL prioritizes having data in a _uniform_ and _distinct_ model. 
 
-Many developers come to NoSQL with at least some SQL experience. They are used to a world of schemas, normalization, joins, and rich querying features. NoSQL tends to be a bit of jarring experience at first because it has different priorities. With Firestore we priorize database reads over writes. In a SQL world uniformity and reducing data duplication are at the utmost priority.
+![Two SQL tables](/tbl_join.svg)
 
-READS / WRITES
+This data model is built through tables. You can think of tables in two dimensions: _rows_ and _columns_. Rows are a single record or object within the table. Columns are the properties on that object. Columns provide a rigid but high level of integrity to your data structure.
 
-This is shown with the basic data structures.
+![A table of expenses](/tbl_expenses.svg)
 
-##### Tables and Collections 
-SQL databases use tables to structure data.
+This table has uniform _schema_ that all records must follow. This gives us a high amount of integrity within the data model at the cost of making variants of this record. You can't add a single column onto a single row. If a new column is created, every row gets that column, even if the value is just null. Let's say we wanted to add another column to this `tbl_expenses` table: `approval`. 
 
-##### Rows & Columns, Documents & Fields
-You can think of tables in two dimensions: rows and columns. Rows are a single record or object within the table. Columns are the properties on that object. Columns provide a rigid but high level of integrity to your data structure. You can't add a single column onto a single row. If a new column is created, every row gets that column even if the value is just null.
+![A table of expenses now with a new column](/tbl_expenses_approval.svg)
 
-NoSQL databases are a bit different. Firestore consists of documents, which are like enhanced objects. They're not just basic JSON objects, they can store complex types of data like binary data, references to other documents, timestamps, geo-coordinates, and so on and so forth. Now in SQL all rows had to have the same columns. But that's not the case in NoSQL every document can have whatever structure it wants. Each document can be totally different from the other if you want. That's usually not the case in practice, but you have total flexibility at the database level. You can lock down the schema with security rules, but we'll get into that later.
+Expenses can be personal so this column may not make sense for every column. For those cases how do we fill the column? Do we make it `false`? Well, that might communicate that the manager didn't approve a personal charge and it could also accidentally end up a query looking for all unapproved expenses. How about making it `null`? This value is supposed to be a `boolean`, but if we make it `nullable`, it can have three states. If you can have three states, is it really a `boolean`? 
 
-#### Data types
+Usually in those cases you would have to create another table such as: `tbl_business_expenses`. Now, to get a list of personal and buisness expenses back you'd have to write a query.
 
-##### Core types
+```sql
+-- Union expenses with business expenses
+SELECT id, cost, date, uid
+  FROM tbl_expenses
+UNION
+SELECT id, cost, date, uid
+  FROM tbl_business_expenses
+```
 
-##### Complex types
+The advantage here is that the data integrity is high, however it's at the cost the read time. Anytime you have to write a `JOIN` or some other clause you are tacking on the time to complete the query. In simple queries this isn't a big deal, but as data models grow more complicated the queries do as well. If you aren't careful, you can end up with a 7 way `INNER JOIN` and just to get a list of expenses. 
+
+A query like that can be rather slow. If this kind of query is one of the most important aspects of your site, it needs to be fast, even as more and more records are added to the database. As the database needs to scale, you'll need to put it on beefier and beefier machines, this is known as _scaling vertically_.
+
+##### Reads over Writes
+NoSQL databases don't care as much about uniformity and definitely not as much about having a distinct model. What Firestore priorities is fast reads. In many applications it's common to have more reads than writes. Take a second and think about some of the most common apps and sites in your life. Now think about how much more you consume the content from them versus write updates to them. Even if you are an avid poster, it's still likely that you scroll through your feed more.
+
+![A diagram showing more reads than writes](/reads_over_writes.svg)
+
+In the Firestore world, we're going to be shifting away from data normalization and strong distinctive models. What we'll get in return are _blazing fast queries_ with _realtime_ streaming. In addition, as your database scales up to support more data it can be distributed across several machines to handle the work behind the scenes. This concept is known as _scaling horizontally_ and it's how Firestore scales up automatically for you.
+
+With all that out of the way, let's see how you store and model data in Firestore.
+
+##### Tables -> Collections 
+If SQL databases use tables to structure data, what do NoSQL database use? Well, in Firestore's case data is stored in a hierarchical folder like structure using collections and documents.
+
+![Diagram of two documents in an expenses collection with different schemas](/collection_document.svg)
+
+Collections are really just a concept for documents all stored at a similar path name. All data within Firestore is stored in documents.
+
+##### Rows -> Documents
+Firestore consists of documents, which are like objects. They're not just basic JSON objects, they can store complex types of data like binary data, references to other documents, timestamps, geo-coordinates, and so on and so forth. Now in SQL all rows had to have the same columns. But that's not the case in NoSQL every document can have whatever structure it wants.
+
+![Comparing a SQL row to a NoSQL document](/row_doc.svg)
+
+Each document can be totally different from the other if you want. That's usually not the case in practice, but you have total flexibility at the database level. You can lock down the schema with security rules, but we'll get into that later. 
 
 #### Retrieving data
 With SQL you think about retrieving data in terms of queries. While that is still true here, you should primarily think about data in terms of locations with path names. In the JavaScript SDK we call this a reference.
 
 ##### References
-
 Documents and collections are identified by a unique path, to refer to this location you create a reference.
 
 ```js
+import { collection } from 'firebase/firestore';
+
 const usersCollectionReference = collection(db, 'users');
 // or for short
 const usersCol = collection(db, 'users');
@@ -121,6 +157,8 @@ setDoc(newDoc, { name: 'Fiona' }); // Now it's sent to the server
 ```
 
 Now there's one thing you should notice here. We're making updates to the server, but nowhere are we awaiting the result of the update. It's still an async operation, but why aren't we awaiting the result?
+
+// todo: maybe a "Best practice", "tip!", "bad!", callout
 
 ##### Synchronization
 I'm about to dive into one of the core principles of the Firebase SDKs: unidirectional data-flow. If you've ever used React, Redux, or something similar you'll be familiar with this concept.
@@ -207,7 +245,7 @@ In this case when we add a new user it will fire the callback of `onSnapshot()`,
 
 And that's not all you can get from a `Snapshot`. I don't know if I said this, but it's really useful.
 
-##### The Cache
+##### The Offline Cache
 One of the important properties of a snapshot is metadata. 
 
 ```js
@@ -449,13 +487,13 @@ Talk about how hierarchy is good for keys and stuff like that.
 ##### Normalization
 ```sql
 -- Can I have the user data and all of their expenses data as well? kthx!
-SELECT e.id, e.cost, e.date, u.user_id, u.first, u.last 
+SELECT e.id, e.cost, e.date, u.uid, u.first, u.last 
 FROM tbl_expenses as e
-INNER JOIN tbl_users as u ON e.user_id = u.id
-WHERE e.user_id = 'david';
+INNER JOIN tbl_users as u ON e.uid = u.id
+WHERE e.uid = 'david';
 ```
 
-A cornerstone of SQL is data normalization. Normalization seeks to ensure that data is not duplicated across the database. This is commonly done through the use of foreign keys. Each row has a column that corresponds to another record in another table. In this case we have `tbl_users` and `tbl_expenses`. Each expense row has a `user_id` column that corresponds to a record in the users table. Referencing the data in a foreign key keeps the data from being duplicated, and possibly inconsistent, throughout the database. But what it does do, is it requires a query to build the result set of data. A query is pretty much a question:
+A cornerstone of SQL is data normalization. Normalization seeks to ensure that data is not duplicated across the database. This is commonly done through the use of foreign keys. Each row has a column that corresponds to another record in another table. In this case we have `tbl_users` and `tbl_expenses`. Each expense row has a `uid` column that corresponds to a record in the users table. Referencing the data in a foreign key keeps the data from being duplicated, and possibly inconsistent, throughout the database. But what it does do, is it requires a query to build the result set of data. A query is pretty much a question:
 
 This computes a result set back with all the data needed. Each time we need to ask this question we'll have to run this query, but we won't have to duplicate the data needed. NoSQL is a bit different.
 

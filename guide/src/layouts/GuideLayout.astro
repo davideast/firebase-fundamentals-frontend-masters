@@ -78,7 +78,7 @@ h2 {
 }
 
 :global(.content h5) {
-  margin-block-end: var(--space-xs);
+  margin-block-end: var(--space-xxs);
   margin-block-start: var(--space-xs);
   color: var(--gray-5);
 }
@@ -102,6 +102,10 @@ h2 {
 
 :global(.content h4 + p) {
   margin-block-start: var(--space-md);
+}
+
+:global(.content h5 ~ p) {
+    margin-block-end: 14px;
 }
 
 :global(.content ul) {
@@ -172,8 +176,16 @@ h2 {
   z-index: 2;
 }
 
-:global(p + .astro-code) {
+:global(p + .astro-code), :global(blockquote + .astro-code) {
   margin-block: 0 var(--space-lg);
+}
+
+:global(.content p > code), 
+:global(.content ul li > code) {
+  font-family: var(--font-mono);
+  background: var(--black-4);
+  padding: 4px;
+  border-radius: 4px;
 }
 
 @media(max-width: 1060px) {

@@ -25,20 +25,11 @@ Firebase has 19 different services or "products" that you can use. And this can 
 
 Were going to narrow it down and cover:
 
-##### Firebase Hosting 
-Deploy a site on a fast global CDN
-
-##### Firestore 
-A cloud hosted realtime database
-
-##### Firebase Authentication 
-A serverless authentication system
-
-##### Security 
-Centralized authroization control
-
-##### Cloud Functions 
-Run server code in response to events 
+- [Firebase Hosting](#) – Deploy a site on a fast global CDN
+- [Firestore](#) – A cloud hosted realtime database
+- [Firebase Authentication](#) – A serverless authentication system
+- [Security](#) — Centralized authroization control
+- [Cloud Functions](#) – Run server code in response to events 
 
 By the end of the workshop you will know the ins and outs of how to use all of these Firebase features to build scalable, secure, and just plain old awesome web apps.
 
