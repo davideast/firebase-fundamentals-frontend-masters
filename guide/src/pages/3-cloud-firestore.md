@@ -136,31 +136,117 @@ updateDoc(userDoc, { name: 'David!' });
 
 This isn't just local, this callback fires across all connected devices.
 
-##### Mutation functions
-Speaking of updates. What we see right here is one of the several update functions or as we call them mutation functions.
+#### Writing data
+Speaking of updates. What we see right here is one of the several update functions or as we call them _mutation functions_.
 
-- `setDoc()`
-- `updateDoc()`
-- `deleteDoc()`
-- `setDoc(..., { merge: true })`
+##### setDoc()
+In Firestore calling `setDoc()` is considered a "destructive" operation. It will overwrite any data at that given path with the new data provided.
 
+```js
+const davidDoc = doc(firestore, 'users/david_123');
+setDoc(davidDoc, { name: 'David' });
+```
+
+For the instances where you want to granularly update a document, you can use another function.
+
+##### updateDoc()
+The `updateDoc()` function can take in a partial set of data and apply that update to an existing document.
+
+```js
+const davidDoc = doc(firestore, 'users/david_123');
+updateDoc(davidDoc, { name: 'David!!!!' });
+```
+
+It's important to note that `updateDoc()` will fail if the document does not already exist. In the case where you can't be certain if a document exists but you don't want to perform a desctructive set, you can merge the update.
+
+```js
+const newDoc = doc(firestore, 'users/new_user_maybe');
+setDoc(newDoc, { name: 'Darla' }, { merge: true });
+```
+
+This will create a new document if needed and if the document exists, it will only update with the data provided. It's the best of both worlds.
+
+##### deleteDoc()
+Deleting a document is fairly straighfoward.
+
+```js
+const davidDoc = doc(firestore, 'users/david_123');
+deleteDoc(davidDoc);
+```
+
+##### Generating Ids
 Now that's for single documents. What about adding new items to a collection? Do you have to think of a new ID every time?
 
 ```js
-const someDoc = doc(db, 'users/some-name'); // ??
+// Don't want to have to name everthing? Good!
+const someDoc = doc(firestore, 'users/some-name');
+const usersCol = collection(firestore, 'users');
 // Generated IDs!
 addDoc(usersCol, { name: 'Darla' });
+```
+
+The `addDoc()` function will create a document reference behind the scenes, assign it a generated id, and then data is sent to the server. What if you need access to this generated ID before you send its data off to the server?
+
+```js
 // The ids are generated locally as well
 const newDoc = doc(userCol);
 console.log(newDoc.id); // generated id, no data sent to the server
 setDoc(newDoc, { name: 'Fiona' }); // Now it's sent to the server
 ```
 
+Generated Ids in Firestore are created on the client. By creating an empty named child document reference from a collection reference, it will automatically assign it an generated id. From there you can use that id for whatever you need before sending data up to the server.
+
+##### Timestamps
+One of the tricky aspects with client devices are dates and timestamps. Firestore allows you to set dates on documents.
+
+```js
+const newDoc = doc(firestore, 'marathon_results/david_123');
+// Imagine this runs automatically when a runner crosses the finish line
+setDoc(newDoc, { 
+  name: 'David', 
+  finishedAt: new Date() // Something like: '5/1/2022 9:32:12 EDT'
+});
+```
+
+In this example, this user document is added with an `finishedAt` field set to the device date. But it's only the current date based on that machine. Imagine if this was an app one the user's phone that ran this code when they crossed the finish line. The user could change their device settings and set the world record if they wanted to. Instead, we rarely use local dates for timestamps and we use value to tell Firestore to apply a time on the server.
+
+```js
+const newDoc = doc(firestore, 'marathon_results/david_123');
+// Imagine this runs automatically when a runner crosses the finish line
+setDoc(newDoc, { 
+  name: 'David', 
+  finishedAt: serverTimestamp()
+});
+```
+
+This function acts as a placeholder on the client that tells Firestore to apply the time when reaching the server.
+
+##### Incrementing values
+One of the most common tasks with data is just simply incrementing and decrementing values. The math is simple, but the edge cases in a realtime system can be really tricky. 
+
+1. You first need to know the state of the data
+2. Then you need to add or substract from the value
+3. Then you update the new score
+
+But what happens if that value was updated during that process? The new value will likely be wrong. Firestore has a few ways of handling these types of updates, but the most convienent are the `increment()` and `decrement()` functions.
+
+```js
+const davidScoreDoc = doc(firestore, 'scores/david_123');
+const darlaScoreDoc = doc(firestore, 'scores/darla_999');
+
+updateDoc(davidScoreDoc, {
+  score: decrement(10),
+})
+updateDoc(darlaScoreDoc, {
+  score: increment(100),
+})
+```
+
+The functions ensure that the incrementing and decrementing operations happen the latest value in the database. It's important to note that these functions can only work reliably if ran at most once per second. If you need updates faster than that you can use a solution called a _distributed counter_. But that's for another class.
+
 Now there's one thing you should notice here. We're making updates to the server, but nowhere are we awaiting the result of the update. It's still an async operation, but why aren't we awaiting the result?
 
-// todo: maybe a "Best practice", "tip!", "bad!", callout
-
-##### Synchronization
+#### Synchronization
 I'm about to dive into one of the core principles of the Firebase SDKs: unidirectional data-flow. If you've ever used React, Redux, or something similar you'll be familiar with this concept.
 
 In a CRUD like system you'll make a request to a server to create a resource and get the result back in the response.
@@ -260,17 +346,12 @@ onSnapshot(userDoc, snapshot => {
 
   // Second time, data is updated locally: 
   // { fromCache: true, hasPendingWrite: true } 
-
-  // Third time, data is verified by the server: 
-  // { fromCache: false, hasPendingWrite: false }
 });
 
 updateDoc(userDoc, { name: 'David!' });
 ```
 
 This tells you information about whether the data has been sent to the server and the snapshot was delivered from Firestore's local cache or directly from the network.
-
-// TODO: Run this test to make sure the 2nd emission happens this way. You may need to use the listen config. Also check out duplication logic within listeners. Maybe just take the time to meet with the SDK team as well.
 
 As you can see, Firestore is really powerful when it comes to realtime synchronization and offline capabilities. We haven't even begun to see querying yet either, but don't worry, it's just up ahead.
 
@@ -426,15 +507,15 @@ In Firestore _the time it takes to run a query is proportional to the number of 
 
 Whenever you create a document in the database, Cloud Firestore creates an index for every field in that document. An index is a sorted list of all the values in the field that are being indexed. An index stores the value and the id of the document in the database. This makes it fast and easy to query on a single field. 
 
-![7:40]()
+![A diagram showing a index list for the cost field](/cost_index_range.svg)
 
 However, what about two fields? Each field has an index and its sorted by its own values, so they can't be queried together. 
 
-![10:40]()
+![A diagram showing two indexes lists sorted in different order](/multiple_indexes.svg)
 
 Instead we explicitly ask Firestore to create a new index that is based on these two fields and with their values properly sorted.
 
-![11:11]()
+![A diagram showing a composite index list sorted by category and cost](/category_cost_composite_index.svg)
 
 This is called a _composite index_ and it's what enables you to query beyond one field in Firestore. You might be thinking at this point: _"Why doesn't Firestore automatically create composite indexes for every document?"_ The problem there is that there are far too many possible combinations when it comes to composite indexing. A document of `20` fields would create 6,000,000,000,000,000 different combinations.
 
@@ -680,7 +761,7 @@ Let's take a look at this expenses database structure. The expenses collection h
 
 _What if we didn't have to build a query at all to get a user's expenses?_ What if we could do it with a straightforward read? Well, it turns out we can _if we use subcollections._
 
-![subcollections image]()
+![A diagram of a subcollection of expenses under a user document](/subcollection.svg)
 
 Once you have a user's `uid` in hand all you'd have to do is read the expenses subcollection. 
 
@@ -699,7 +780,7 @@ Subcollections simplifies querying for all expenses from a _single user_. Howeve
 ##### Collection Group Queries
 Whenver you have a common subcollection name is Firestore, you can create an index for a special kind of query called a _Collection Group Query._
 
-![An diagram showing the common subcollection name of expenses across many documents]()
+![An diagram showing the common subcollection name of expenses across many documents](/collection_group_query.svg)
 
 In this case, each user document has a subcollection named expenses. Using the Firestore Console or just by clicking on a link, you can create an index and you'll be able to query across all expenses.
 
@@ -765,7 +846,9 @@ Batched Writes are good for atomic processess, but they are only good for updati
 The problem there is that the read isn't an atomic operation. That data could be out of date well before the batch commits, which could lead to all sorts of inconsistent states in your database. This is especially problematic for games or systems that need rules followed in certain order. For those situations, you can use transactions.
 
 ##### Transactions
-Transactions allow you to run multiple operations in an atomic process including the access to reading data. 
+Transactions allow you to run multiple operations in an atomic process including the access to reading data. This allows you to do important things in order, like update scores, and other process based data. This keeps users or events from going "out of turn."
+
+In many databases, transactions will lock the entity until the transaction is completed. The Firestore client libraries want to avoid locking a document. Clients are often unpredictable in their network state, imagine if a client locked a document and then went offline. Instead of locking, Firestore will retry the transaction if something has changed. This is known as _optimistic concurrency control_, which will make you sound very fancy to say at parties.
 
 ```js
 import { runTransaction } from "firebase/firestore";
@@ -779,9 +862,11 @@ try {
       throw "Document does not exist!";
     }
 
-    const { score } = gameDoc.data();
-    const newScore = score + pointsAwarded;
-    transaction.update(sfDocRef, { score: newScore });
+    const data = gameDoc.data();
+    // Add to the score state
+    const score = data.score + pointsAwarded;
+    // Run the transaction
+    transaction.update(gameDoc, { score });
   });
   console.log('Transaction successfully committed!');
 } catch (e) {
@@ -789,8 +874,31 @@ try {
 }
 ```
 
-In this example we're getting new points awarded from a game.
+In this example we're getting new points awarded from a game. The transaction will run and attempt to update the new score. If the score is updated before this transaction runs, the transaction will try to run again to keep the state correct. 
 
+With transactions it's important to follow a process:
+
+1. Read first - Get the state you need to update
+2. Update state - Perform the business logic (e.g. update game state)
+3. First attempt - Then a write is attempted and will succeed if the data is up to date.
+4. Double checking - Firestore looks to ensure that nothing indeed has changed from the first reed.
+5. Something change? - If data has changed from the first read, the transaction is re-tried.
+
+Since transactions can retry, they can act a little funny. First of all, don't modifiy any application or UI state within a transaction. This can lead to some seriously confusing bugs within your app because they will run more than once when a transaction is retried. If you want to open a `<dialog>`, don't do it within the transaction, wait for the transaction to complete.
+
+```js
+try {
+  await runTransaction(firestore, async (transaction) => {
+    // Do your transaction stuff
+  });
+  // Only after the promise has resolved
+  successDialog.open();
+} catch (error) {
+  
+}
+```
+
+Secondly, transactions will fail when an app goes offline, which is a good thing. Transactions are based off having the most up to date read, and that can't happen while you're offline.
 
 #### Authentication and security
 The database is still not secure, any user can read, write, update, or delete anything they want from the database. Like I've said before, the fix is security rules, however before we can get to writing these rules we have to cover our basis with authentication.

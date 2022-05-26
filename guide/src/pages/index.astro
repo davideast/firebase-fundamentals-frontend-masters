@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import DividerGrid from '../components/DividerGrid.astro';
+const guides = await Astro.glob('./*.md');
 ---
 <Layout title="Firebase Fundamentals">
 	<main class="content-subgrid">
@@ -31,30 +32,19 @@ import DividerGrid from '../components/DividerGrid.astro';
 	<section class="list-grid">
 		<h3>Workshop Sections</h3>
 		<ol>
-			<li>
-				<a href="/1-intro">Introduction</a>
-				<div>The architecture, libraries, and general workflow.</div>
-			</li>
-			<li>
-				<a href="#">Setting up a Firebase Project</a>
-				<div>Working from best practices: Emulators, security, and preview channels.</div>
-			</li>
-			<li>
-				<a href="#">Cloud Firestore</a>
-				<div>Realtime streams, advanced querying, and when to denormalize.</div>
-			</li>
-			<li>
-				<a href="#">Firebase Authentication</a>
-				<div>Authenticating users, linking accounts, and admin operations.</div>
-			</li>
-			<li>
+			{guides.map(g => <li>
+					<a href={g.url}>{g.frontmatter.title}</a>
+					<div set:html={g.frontmatter.subtitle}></div>
+				</li>
+			)}
+			<!-- <li>
 				<a href="#">Security Rules</a>
 				<div>The syntax, common patterns, and role based access control.</div>
 			</li>
 			<li>
 				<a href="#">Cloud Functions</a>
 				<div>Triggers, denormalization, and server-side hosting.</div>
-			</li>
+			</li> -->
 		</ol>
 	</section>
 </Layout>
