@@ -84,7 +84,7 @@ h2 {
 }
 
 :global(.content p + .astro-code) {
-  margin-block-start: var(--space-xxs);
+  margin-block-start: 24px;
 }
 
 :global(.content h4:not(:first-of-type)) {
@@ -112,6 +112,14 @@ h2 {
   list-style-type: disc;
   padding-inline-start: var(--space-lg);
   margin-block-end: 28px;
+  display: grid;
+  gap: var(--space-sm);
+}
+
+:global(.content ol) {
+  list-style-type: decimal;
+  padding-inline-start: var(--space-lg);
+  margin-block: 28px 42px;
   display: grid;
   gap: var(--space-sm);
 }
@@ -163,6 +171,10 @@ h2 {
   text-decoration: underline;
 }
 
+:global(.content del) {
+  color: var(--gray-3);
+}
+
 :global(.astro-code) {
   background-color: #0d1117;
   overflow-x: auto;
@@ -172,8 +184,12 @@ h2 {
   padding: var(--space-md);
   grid-column: content;
   border-radius: 8px;
-  margin-inline-end: -368px;
   z-index: 2;
+}
+
+:global(.astro-code),
+:global(.content ul.code-callout) {
+  margin-inline-end: -368px;
 }
 
 :global(p + .astro-code), :global(blockquote + .astro-code) {
@@ -189,7 +205,8 @@ h2 {
 }
 
 @media(max-width: 1060px) {
-  :global(.astro-code) {
+  :global(.astro-code),
+  :global(.content ul.code-callout) {
     grid-column: content;
     margin-inline-end: 0px;
   }

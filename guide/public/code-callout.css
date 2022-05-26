@@ -13,3 +13,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-lg);
 }
+
+.content p + ul.code-callout {
+  margin-block-start: var(--space-xs) !important;
+}

@@ -297,6 +297,7 @@ import { collection, query, where, limit, getFirestore } from 'firebase/firestor
 const db = getFirestore();
 const expensesCol = collection(db, 'expenses');
 const expensesQuery = query(
+  expensesCol,
   where('cost', '>', 200),
   limit(100),
 );
@@ -304,19 +305,21 @@ const expensesQuery = query(
 
 This query looks for expenses greater than `$200` and returns the first `100`. The only field that is used for the query is `cost`. The `limit()` function is just a restriction of the amount returned. Simple queries can have more than one where clause as well, as long as it's on the same field.
 
-```js
-import { collection, query, where, limit, getFirestore } from 'firebase/firestore';
+Firestore comes with a whole set of operators that help you query through your data. 
 
-const db = getFirestore();
-const expensesCol = collection(db, 'expenses');
-const expensesQuery = query(
-  where('cost', '>', 200),
-  where('cost', '<', 210),
-  limit(100),
+##### Equality Operators
+
+Use the `==` operator for straightforward equality queries.
+
+```js
+let expensesQuery = query(
+  expensesCol,
+  where('category', '==', 'food'),
+  limit(100)
 );
 ```
 
-This is still a simple query because the only field involved in the query is still `cost`. In Firestore you can also query within objects/maps.
+This query returns the first `100` expenses that have a category of `'food'`. It's still a simple query because the only field involved in the query is still `cost`. In Firestore you can also query within objects/maps.
 
 ```js
 let expensesQuery = query(
@@ -336,7 +339,36 @@ let expensesQuery = query(
 );
 ```
 
-Still only using one field, we're looking for all expenses for users located in three cities. What about the opposite? Can we query based on a not-equals clause?
+You can query for multiple ranges on one field as well.
+
+```js
+import { collection, query, where, limit, getFirestore } from 'firebase/firestore';
+
+const db = getFirestore();
+const expensesCol = collection(db, 'expenses');
+const expensesQuery = query(
+  expensesCol,
+  where('cost', '>=', 200),
+  where('cost', '=<', 210),
+  limit(100),
+);
+```
+
+This query gets the first `100` expenses that are between `200` and `210`. All of these queries help find data within equality ranges, but you can also do the opposite with inequality operators.
+
+##### Inequality Operators
+
+Firestore supports a `!=` operator.
+
+```js
+let expensesQuery = query(
+  expensesCol,
+  where('category', '!=', 'transportation'),
+  limit(30),
+);
+```
+
+This returns the first `30` expenses that do not have `'transportation'` as a category. Going back to the `user.city` query, you can query for a set of users who are not in a city.
 
 ```js
 let expensesQuery = query(
@@ -353,18 +385,25 @@ let expensesQuery = query(
 );
 ```
 
-This will exclude all these cities from the query. It's worth mentioning that the not-in clause does come with some limitations, you can supply only 10 values.
+This will exclude all these cities from the query. It's worth mentioning that the `not-in` clause does come with some limitations, you can supply only `10` values. 
 
-Some segue into query operators.
+##### Ordering
+Another aspect of composite querying is ordering results with `orderBy()`.
 
-##### Equality Operators
-Blah. Blah.
+```js
+const expensesQuery = query(
+  expensesCol,
+  where('cost', '>=', 200),
+  where('cost', '<=', 210),
+  orderBy('cost', 'desc'),
+  limit(100),
+);
+```
 
-##### Inequality Operators
-Blah. Blah.
+In this example we're querying for expenses that `cost` between `200` and `210`. By using `orderBy()` we're ordering the result set returned by `cost` and sorting the results in a descending order. This means the results will start at `210` and move down towards `200`.
 
 #### Composite Queries
-So far though, we've only seen what queries look like on one field. How do we specify queries for two or more fields? Well, there's some good news and… less great news on this front. Firestore will allow you to query based on two fields and return them just as fast as ever.
+Firestore will allow you to query based on two fields and return them just as fast as ever.
 
 ```js
 const expensesQuery = query(
@@ -376,7 +415,28 @@ const expensesQuery = query(
 );
 ```
 
-The catch is that these queries require a special index called a composite index. Fortunately these indexes can be automatically created for you. When you run a composite query that doesn't have an index created we'll log out a link to the browser console for you to click on and then create a new index.
+However, there's a catch. You need to explicity ask Firestore to create an index for this kind of query. Fortunately these indexes can be automatically created for you. When you run a composite query that doesn't have an index created we'll log out a link to the browser console for you to click on and then create a new index.
+
+![A screenshot of creating a composite index in the Firebase Console.](/composite_index.png)
+
+If you're using the Emulator, you can execute composite quries without needing to create an index. But what's an index anyway? And why do you need to ask Firestore to create them?
+
+##### Indexes
+In Firestore _the time it takes to run a query is proportional to the number of results you get back, not the number of documents you're searching through._ How exactly does that? Well, that's through the magic of indexing.
+
+Whenever you create a document in the database, Cloud Firestore creates an index for every field in that document. An index is a sorted list of all the values in the field that are being indexed. An index stores the value and the id of the document in the database. This makes it fast and easy to query on a single field. 
+
+![7:40]()
+
+However, what about two fields? Each field has an index and its sorted by its own values, so they can't be queried together. 
+
+![10:40]()
+
+Instead we explicitly ask Firestore to create a new index that is based on these two fields and with their values properly sorted.
+
+![11:11]()
+
+This is called a _composite index_ and it's what enables you to query beyond one field in Firestore. You might be thinking at this point: _"Why doesn't Firestore automatically create composite indexes for every document?"_ The problem there is that there are far too many possible combinations when it comes to composite indexing. A document of `20` fields would create 6,000,000,000,000,000 different combinations.
 
 ##### Exercise
 Exercise time! Let's write some queries! Back the same 
@@ -453,9 +513,6 @@ expensesQuery = query(
 
 The result of this query will return expenses that contain the category of `'fun'` or `'kids'`. You might end up getting back an expense tagged as `'kids'` and 'transportation', maybe `'fun'` and 'food', or in some cases you'll get `'fun'` and `'kids'` if that pair exists.
 
-##### in, not-in
-We saw this a bit before, but in and not-in can also be used on arrays.
-
 ##### Exercise
 Let's dive back into the code 
 
@@ -469,10 +526,71 @@ Let's dive back into the code
 Now this whole time we've been getting back an entire dataset or we've been limiting the result set. But how do you page through your data?
 
 #### Range and Cursor queries
-It's unlikely that you'll want to get all of your data back.
+It's unlikely that you'll want to get all of your data back, that's bad for bandwidth and the amount of reads you'll be issuing. Instead we use Firestore's set of range and cursoring functions for pagination.
+
+We've seen `limit()` this entire time, it returns only the first specified number of results. However, you can also return the _last_ specified number of results: with `limitToLast()`
+
+```js
+expensesQuery = query(
+  expensesCol,
+  where('date' ,'>=', new Date('1/1/2022')),
+  orderBy('date'),
+  limitToLast(10),
+);
+```
+
+This query returns the _last_ `10` expenses from the date range greater than `1/1/2022`. If you wanted to keep expanding the set of results as a user scrolled or clicked a button you could be increasing the range in `limitToLast()`. Eventually, you would make it back to `1/1/2022`.
+
+However, that would keep pulling back more and more data with every scroll or click. Instead it would querying for a range of values and moving the range as you go through the data set. This is known as _cursoring_ and Firestore comes with a set of useful cursor functions.
+
+```js
+expensesQuery = query(
+  expensesCol,
+  orderBy('date'),
+  startAt(new Date('1/1/2022')),
+  limitToLast(10),
+);
+```
+
+This query returns the _last_ `10` expenses from the date range greater than `1/1/2022`, just like before, but now we have the ability to create a range with the `startAt()` function, now we can end the range with the `endAt()` function.
+
+```js
+expensesQuery = query(
+  expensesCol,
+  orderBy('date'),
+  startAt(new Date('1/1/2022')),
+  endAt(new Date('2/1/2022')),
+  limitToLast(10),
+);
+```
+
+This query will display the last `10` expenses starting from `2/1/2022` moving back towards `1/1/2022`. Given the size of the data set, it won't go back to `1/1/2022` within `10` results. So how do we get continue to get back without increasing the `limitToLast()` size? Cursor functions can also accept _document references_ as either starting or ending points.
+
+```js
+expensesQuery = query(
+  expensesCol,
+  orderBy('date'),
+  startAt(new Date('1/1/2022')),
+  endAt(new Date('2/1/2022')),
+  limitToLast(10),
+);
+
+// Click to get the next 10 or something
+const querySnap = await getDocs(expensesQuery);
+const firstDoc = querySnap.docs.at(0);
+expensesQuery = query(
+  expensesCol,
+  orderBy('date'),
+  startAt(new Date('1/1/2022')),
+  endBefore(firstDoc),
+  limitToLast(10),
+);
+```
+
+This one may look a little complicated, but let's take a moment to step through what's happening. We start by creating the same query as before. The last `10` expenses within `1/1/2022` to `2/1/2022`. Then we retrieve the docs in the query. In this case let's assume the user clicked on a button or scrolled to issue the query. After we have the documents, we'll get the very first one `.at(0)` and use that to create a new query that ends just right before that document. The `endBefore()` cursor function knows to cut off the range just right before it sees that document. If we repeat this process we'll eventually get back to the last `10` expenses in the full data set.
 
 ##### Exercise
-Go to the code for this.
+Let's get to the code.
 
 <ul class="code-callout">
   <li>cd /3-cloud-firestore/start</li>
@@ -481,10 +599,16 @@ Go to the code for this.
   <li>http://localhost:3000/5/ranges-cursoring</li>
 </ul>
 
-#### Hierarchy, normalization, denormalization
-Talk about how hierarchy is good for keys and stuff like that.
+#### NoSQL and joins
+This entire time we've only queried _from one collection._ I'm sure a lot of you SQL developers are asking: How do you _join data_ from other collections?
+
+The answer, just like anything in web development, is that it depends on your situation. This is another situation where it's helpful to look at what you might be used to in the SQL world.
 
 ##### Normalization
+A cornerstone of SQL is data normalization. Normalization seeks to ensure that data is not duplicated across the database. This is commonly done through the use of foreign keys. Each row has a column that corresponds to another record in another table. 
+
+![Two SQL tables](/tbl_join.svg)
+
 ```sql
 -- Can I have the user data and all of their expenses data as well? kthx!
 SELECT e.id, e.cost, e.date, u.uid, u.first, u.last 
@@ -493,41 +617,106 @@ INNER JOIN tbl_users as u ON e.uid = u.id
 WHERE e.uid = 'david';
 ```
 
-A cornerstone of SQL is data normalization. Normalization seeks to ensure that data is not duplicated across the database. This is commonly done through the use of foreign keys. Each row has a column that corresponds to another record in another table. In this case we have `tbl_users` and `tbl_expenses`. Each expense row has a `uid` column that corresponds to a record in the users table. Referencing the data in a foreign key keeps the data from being duplicated, and possibly inconsistent, throughout the database. But what it does do, is it requires a query to build the result set of data. A query is pretty much a question:
+In this case we have `tbl_users` and `tbl_expenses`. Each expense row has a `uid` column that corresponds to a record in the users table. Referencing the data in a foreign key keeps the data from being duplicated, and possibly inconsistent, throughout the database. But what it does do, is it requires a query to build the result set of data. A query is pretty much a question:
 
-This computes a result set back with all the data needed. Each time we need to ask this question we'll have to run this query, but we won't have to duplicate the data needed. NoSQL is a bit different.
+This computes a result set back with all the data needed. Each time we need to ask this question we'll have to run this query, but we won't have to duplicate the data needed. _NoSQL is a bit different._
 
-#### Denormalization
-In NoSQL databases you rely less on queries and more straightforward read operations. Let's remodel this the expenses app for a NoSQL database:
+##### Denormalization
+In NoSQL databases _you rely less on queries_ and more straightforward read operations. Let's remodel this the expenses app for a NoSQL database:
 
-```txt
-/users/{uid}
-  - { first, last, birthday }
-/expenses/{expenseId}
-  - { cost, date, category, uid, first, last }
-```
+![Denormalization](/denormalization.svg)
+
+Here we have two collections, users are indexed using the `uid` key. When I say "indexed" I mean what key are we using to find the record? In this case we are using the `uid` key to find a specific user. Expenses are indexed using a generated expenseId key. If you look at expenses, it has the expense data but also the user data as well. So getting the data is easy as a single query.
 
 ```js
-getDocs(collection(db, 'expenses'))
+let expensesQuery = query(
+  collection(firestore, 'expenses'),
+  where('user.uid', '==', 'david_123'),
+);
 ```
 
-Here we have two collections, users are indexed using the userId key. When I say "indexed" I mean what key are we using to find the record? In this case we are using the "userId" key to find a specific user. Expenses are indexed using a generated expenseId key. If you look at expenses, it has the expense data but also the user data as well. So getting the data is easy as…
+Now I can feel my ears burning which tells me that some of you out there are completely aghast to the data duplication going on. You might be saying "What if the user updates their name or other information! That data is going to be inconsistent!" Well, that's true. With NoSQL databases you do need to update that user data in every expense record.
 
-No real "query" is needed. No where statements, or other clauses. Now I can feel my ears burning which tells me that some of you out there are completely aghast to the data duplication going on. You might be saying "What if the user updates their name or other information! That data is going to be inconsistent!" Well, that's true. With NoSQL databases you do need to update that user data in every expense record. That's a technique known as fanout. However, this isn't as bad of a concept as you might think. Fanout works really well in the case where data is rarely updated, much like a user's name. Also fanout can be done without locking up the database, so the user can continue to use their app while the data is updating. There's no wait time unlike a query.
+That's a technique known as _fanout_. However, this isn't as bad of a concept as you might think. Fanout works really well in the case where data is rarely updated, much like a user's name. Also fanout can be done without locking up the database, so the user can continue to use their app while the data is updating. There's no wait time unlike a query.
 
-#### The denormalization spectrum
-Now this is a contrived situation. In reality, I would not use fanout in this data structure. This is a 1-to-many data model. One user, many expenses. I would simply read the user data first, and then get their expenses. Just because you're using a NoSQL database doesn't always mean you have to go full onboard the denormalization train. A lot of developers coming from SQL are worried that if they use a NoSQL database they'll have to pre-compute all their queries and into structures and fan out every data update for the rest of their life. But that's not the case.
+##### The denormalization spectrum
+Now just because I can use fanout, it doesn't mean I always have to. In reality, I would not use fanout in this data structure. This is a _one-to-many_ data structure. _One user, many expenses._ I would get the logged in user with Firebase Authentication, then use their `uid` to get their profile data, and then get their expenses. 
 
-Denormalization isn't a rigid specification, it's a spectrum. You decide how much data duplication is needed, if at all. While Firestore is not like a SQL database, it does have a sizable set of query features that help you find your right spot in this spectrum. And the awesome thing about Firestore, is that while the query capabilities are limited, the queries are designed to be fast and scalable. This means it's a lot harder to write a query that will take forever to compute. And actually the way queries work in Firestore is that: The time it takes to run a query is proportional to the number of results you get back, not the number of documents you're searching through.
+```js
+let userQuery = collection(firestore, `users/${auth.currentUser.uid}`);
+let expensesQuery = query(
+  collection(firestore, 'expenses'),
+  where('uid', '==', auth.currentUser.uid)
+);
 
-With all of the NoSQL primer out of the way, let's take a look at the types that make up the data.
+// Issue a one-time read for the user
+const userSnap = await getDoc(userQuery);
+// Create a realtime listener for expenses
+onSnapshot(expensesQuery, snapshot => {
+  console.log({
+    user: userSnap.data(),
+    expenses: snapshot.docs.map(d => d.data()),
+  });
+});
+```
 
-##### Hierarchy
+This situation works really well for many types of data structures and especially _one-to-many_ relationships. Just because you're using a NoSQL database doesn't always mean you have to go full onboard the denormalization train. A lot of developers coming from SQL are worried that if they use a NoSQL database they'll have to pre-compute all their queries and into structures and fan out every data update for the rest of their life. But that's not the case.
+
+_Denormalization isn't a rigid specification_, it's a spectrum. You decide how much data duplication is needed, if at all. While Firestore is not like a SQL database, it does have a sizable set of query features that help you find your right spot in this spectrum.
+
+However, if I were in a scenario where I needed to query all expenses across all users: a _many-to-one_ relationship. I would strongly consider a denormalized strategy with an embedded `user` object/map like shown above. Otherwise my options would be to issue a read to get the user for each and every expense. And while this isn't as complicated as you think, how often is it that a user updates their profile information?
+
+That ~~somewhat~~ answers question number one: how to join data. Now onto question number two, how do you hande querying by more than 2 fields?
+
+#### Hierarchy
+Another thing we've done this entire time, is that we've only queried data from top level collections. In Firestore you can structure your data hierarchically. Collections contain documents, and documents can contain collections themselves, known as _subcollections_.
+
+Why is the hierarchy important? Two main reasons:
+
+1. Many _structures make sense_ in a hierarchy: think folders and files.
+1. Hierarchies are based on paths, which can _reduce_ or _simplify queries_.
+
+Let's take a look at this expenses database structure. The expenses collection has an index of a generated key. To get a user's expenses you'll need to run a query based on the `uid` field. As we've learned so far, when you begin to query on more than one field you start to have to build composite indexes, which you only have a limited number of. 
+
+_What if we didn't have to build a query at all to get a user's expenses?_ What if we could do it with a straightforward read? Well, it turns out we can _if we use subcollections._
+
+![subcollections image]()
+
+Once you have a user's `uid` in hand all you'd have to do is read the expenses subcollection. 
+
+```js
+let expensesQuery = query(
+  collection(firestore, 'users/david_123/expenses')
+);
+```
+
+No `where` clause needed. This not only makes it easier to query a single user's expenses, but it frees up a field for querying as well. 
+
+One thing to note: _queries in Firestore are shallow_. This means when you query a document, you only get the document's data and not its subcollections.
+
+Subcollections simplifies querying for all expenses from a _single user_. However, since queries are shallow, did we just lose the ability to query for all expenses across all users? Not quite, because Firestore has a special kind of query that handles this scenario.
 
 ##### Collection Group Queries
+Whenver you have a common subcollection name is Firestore, you can create an index for a special kind of query called a _Collection Group Query._
+
+![An diagram showing the common subcollection name of expenses across many documents]()
+
+In this case, each user document has a subcollection named expenses. Using the Firestore Console or just by clicking on a link, you can create an index and you'll be able to query across all expenses.
+
+```js
+let expenseGroup = collectionGroup(firestore, 'expenses');
+expensesQuery = query(
+  expenseGroup,
+  where('cost', '>', 200),
+  where('cost', '<', 210),
+  where('categories', 'array-contains-any', ['food']),
+);
+```
+
+Now we have the best of both worlds. We can query across single users and we can query across all expenses.
 
 ##### Exercise
-Go to the code for this.
+Time for another exercise!
 
 <ul class="code-callout">
   <li>cd /3-cloud-firestore/start</li>
@@ -535,6 +724,73 @@ Go to the code for this.
   <li>npm run dev</li>
   <li>http://localhost:3000/6/collection-group-quries</li>
 </ul>
+
+#### Atomicity
+One of the most important aspects of a database is being able to handle multiple operations in an _all or nothing_ fashion. If one operation fails, rollback the entire process. This concept is known as _atomicity._
+
+In Firestore you can achieve atomicity through two but different ways: _batched writes_ and _transactions._
+
+##### Batched Write
+A Batched Write allows you to store an entire set of set, update, or delete operations into a single "batch" and them "commit" these operations. If even one operation fails the entire batch won't go through.
+
+```js
+import { writeBatch, doc, collection, serverTimestamp } from "firebase/firestore"; 
+
+let batch = writeBatch(firestore);
+let expensesCol = collection(firestore, 'users/david_123/expenses');
+batch.set(doc(expensesCol), { 
+  categories: ['food'], 
+  cost: 123.23, 
+  date: serverTimestamp(),
+})
+batch.update(doc(expensesCol, 'i-know-this-id'), { 
+  categories: ['transportation', 'fun'],
+})
+batch.delete(doc(expensesCol, 'i-know-this-id'));
+
+try {
+  await batch.commit();
+} catch(error) {
+  // was there a problem? if so, roll it all back
+}
+// If not, we're done!
+```
+
+A good usecase for Batched Writes are for when you are updating denormalized data across the database. If you aren't able to successfully update everything in one go, you likely want to roll back and try again.
+
+One thing to note is that Batched Writes have a limit of `500` documents per batch. If you need to update more than `500` documents at time you'll need to create multiple batches. This does mean you could be in a state where some batches succeed and some fail. For these multi-batch situations it's best to execute them using our server libraries. In general though, updating data over a period of time is a common practice many NoSQL databases.
+
+Batched Writes are good for atomic processess, but they are only good for updating data _without caring about the existing data in place._ They are an overwrite style operation and they have no knowledge of the given set of data. In fact, if you needed to know the current state of data you'd have to read the data first and then update it via a Batched Write. 
+
+The problem there is that the read isn't an atomic operation. That data could be out of date well before the batch commits, which could lead to all sorts of inconsistent states in your database. This is especially problematic for games or systems that need rules followed in certain order. For those situations, you can use transactions.
+
+##### Transactions
+Transactions allow you to run multiple operations in an atomic process including the access to reading data. 
+
+```js
+import { runTransaction } from "firebase/firestore";
+
+const pointsAwarded = // get from web app;
+
+try {
+  await runTransaction(firestore, async (transaction) => {
+    const gameDoc = await transaction.get(gameRef);
+    if (!gameDoc.exists()) {
+      throw "Document does not exist!";
+    }
+
+    const { score } = gameDoc.data();
+    const newScore = score + pointsAwarded;
+    transaction.update(sfDocRef, { score: newScore });
+  });
+  console.log('Transaction successfully committed!');
+} catch (e) {
+  console.log('Transaction failed: ', e);
+}
+```
+
+In this example we're getting new points awarded from a game.
+
 
 #### Authentication and security
 The database is still not secure, any user can read, write, update, or delete anything they want from the database. Like I've said before, the fix is security rules, however before we can get to writing these rules we have to cover our basis with authentication.
