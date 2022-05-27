@@ -183,6 +183,7 @@ match /users/{uid} {
 ```
 
 ##### Getting the active document's data
+Using the `resource` variable you can get the resource being requested. The resource variable itself has a property of `data` where you can access the current data stored at the document. 
 
 ```cpp
 match /users/{uid} {
@@ -190,35 +191,160 @@ match /users/{uid} {
 }
 ```
 
-#### Validating schema
+This `data` value can be null if no document exits. The `resource` variable contains the existing document data. But what about the data that is being sent up from the client that is attempted to be written to the database?
+
+##### Getting the attempted data update
+The `request` object contains another propery named `resource`. This is different than the top level `resource` variable. This contains the data that is being attempted to be saved to the database.
 
 ```cpp
 match /users/{uid} {
-  allow write: if request.resource.data is string;
+  allow read: if request.resource.data.name == 'david';
 }
 ```
 
+This rule is fairly useless, but it demonstrates that you can acess the data before the write has write has been comitted. Using this data you can ensure that the new data conforms to a schema.
+
+It's important to note that in the case of an update operation, you will likely send only a partial object. Within the `request.resource.data` object, Firetore will "hydrate" the object so it contains all the properties it would have if it was accepted.
+
+#### Validating schema
+NoSQL itself is schemaless at the database level. However, with Security Rules you have a layer to enforce structure and types before writes can succeed.
+
+There are a few main aspects of schema validatation, enforcing _types_, _fields_, and _changes_.
+
 ##### is
 
-##### keys
+The `is` keyword will check if a value is a specific type.
 
-##### diffs
+```cpp
+match /users/{uid} {
+  allow write: if request.resource.data.name is string &&
+                  request.resource.data.age is number &&
+                  request.resource.createdAt is timestamp &&
+                  request.resource.score is float;
+}
+```
+
+With Firestore you have an [entire set of types](https://firebase.google.com/docs/reference/rules/index-all) at your disposal to check from.
+
+You might have an old legacy UI/system that is still sending values as incorrect types. In some cases you'll be able to coerce them.
+
+```cpp
+match /users/{uid} {
+  allow write: if int(request.resource.data.score) is int;
+}
+```
+
+This rule will coerce the type to an `int` and if it fails it will reject the read. Now, This rule ensure that all expected values will be their given types, but what about unexpected values? This rule does limit what can be added to the document.
+
+##### keys
+To ensure that an object has the structure you require, you can use the `keys()` function.
+
+```cpp
+match /users/{uid} {
+  allow write: if request.resource.data.name is string &&
+                  request.resource.data.age is number &&
+                  request.resource.createdAt is timestamp &&
+                  request.resource.score is float &&
+                  request.resource.data.keys().hasOnly([
+                    'name',
+                    'age',
+                    'createdAt',
+                    'score',
+                  ]);
+}
+```
+
+The `keys()` function exists on any type that is a `Map`, and `resource.data` is a `Map`. This `keys()` function returns `List` which as entire set of functions for asserting values on the `Map`. In this case we're using the `hasOnly()` function that asserts that there will only be a specific set of keys on the update. If you wan tot be more permissive, you can use the `hasAll()` function to make sure it at least has the values provided. You can even more permissive with the `hasAny()` function, which looks for the existence of at least one value provided.
+
+It's important to note that without restricting on the keys, this rule will still reject if the values being checked for their type do not exists. Specifying `hasAll()` or `hasAny()` in addition in those cases would be redundant.
+
+Now it's time for something a little more complex. After an object is created, what if we wanted certain fields to be immutable? How would check for that?
+
+##### MapDiff
+Firestore has a special type called a `MapDiff`, that is the result of comparing two `Map` objects. This diff object gives you a set of functions to analyze the comparison.
+
+```cpp
+match /users/{uid} {
+  allow update: if request.resource.data
+    .diff(resource.data)
+    .unchangedKeys()
+    .hasOnly(["createdAt"])
+}
+```
+
+This rule ensures that the `createdAt` field cannot be changed after being updated. The `unchangedKeys()` function returns what keys were not modified in the difference between the new data update and the existing data.
+
+The `MapDiff` object also [contains multiple other functions](https://firebase.google.com/docs/reference/rules/rules.MapDiff) see what keys were added, changed, removed.
+
+Between `request.resource` and `resource` you can access data from an update or at that path in the database. However, what if you need to check data from another spot in the database?
 
 #### Reading data within rules
+Security rules allow you to specify a path and retrieve the data from that document and you can compose these paths with variables and wildcards.
 
 ##### get()
+The `get()` function allows you to specify a full path to an document in the database to retrieve its data.
 
-##### paths
+```cpp
+match /secretDocs/{id} {
+  allow read: if get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'admin'
+}
+```
+
+This rule looks if a user in the `/admins/{uid}` document and has a role of "admin". One thing you'll notice is that you have to specify the fully qualified path to the document. The second you'll notice is that variables are interpolated in that via a `$(variable)` syntax. This type is referred to as a `Path` and there's even [some tricks you can do with them](https://firebase.google.com/docs/reference/rules/rules.Path) as well, but that's for another day.
+
+It's only been a bit of a tour through Security Rules, but we've looked a lot of advanced situations. The code we've written however is rather verbose, which makes sense because it we haven't abstracted it into any readable or reusable structures... like functions. 
 
 #### Cleaner code with functions
+It is my opinion that you should avoid writing expressions inside of a match block (outside of simple situations that is). Security Rules allows you to abstract logic into functions for readablity and reuse.
+
+```cpp
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isUserOwned(pathUid) {
+      return request.auth.uid == pathUid;
+    }
+
+    match /users/{uid} {
+      allow read: isUserOwned(uid);
+    }
+  }
+}
+```
+
+This rule uses a function to abstract an expression that evaluates if the currently logged in user owns the data at that document path. By abstracting it out into its own function its far more readable and it can be used in other rules.
+
+One thing you may have noticed, the `isUserOwned()` function takes in a `pathUid` parameter but uses the global `request` object.
 
 ##### Scoping
+Functions in Security Rules follow a specific scope. They have access to all global variables, but they also have access to wildcard variables as well. The previous function could have been written like this:
+
+```cpp
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isUserOwned() {
+      return request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read: isUserOwned();
+    }
+  }
+}
+```
+
+This relies in the `{uid}` wildcard being present, which will work in many cases. However, I find that its a best practice to try to keep your functions are predictable and readable as possible. Relying on variables that may not be within scope in other rules could lead to trouble, so keep everything as explicit as possible.
+
+Speaking of trouble. How do you know that your rules _actually work_? How can you be sure that when you make changes you won't be introducing bugs or a regression?
 
 #### Workflow
-How do we begin writing security rules? You can handle it one of two ways: write them directly in the Firebase Console, or write them locally within your project and deploy with the Firebase CLI.
+You write rules one of two ways: write them directly in the Firebase Console, or write them locally within your project and deploy with the Firebase CLI. 
 
 ##### Start with the CLI
-The console is a good option for sample apps or hobby projects. However, it's a best practice to develop rules locally and deploy with the CLI. This allows your rules to be within source control for your project and makes it easier for teams to collaborate. 
+The console is a good option for sample apps or hobby projects. However, it's _a best practice to develop rules locally and deploy with the CLI_. This allows your rules to be within source control for your project and makes it easier for teams to collaborate. 
 
 ```bash
 firebase init firestore emulators
@@ -227,14 +353,67 @@ firebase init firestore emulators
 ##### Write unit tests
 In addition you can actually write unit tests against your security rules to make sure they don't break critical use cases between pushes to production.
 
+Firebase provides a unit testing library for this purpose.
+
+```bash
+npm i -D @firebase/rules-unit-testing
+```
+
+This allows you to write your tests locally and then run unit tests against them using the Emulator Suite. It's all starts by creating a test environment.
+
+```js
+import testing from "@firebase/rules-unit-testing"
+import { readFileSync } from 'fs';
+
+const testEnv = await testing.initializeTestEnvironment({
+  projectId: 'frontend-masters-firebase',
+  firestore: {
+    rules: readFileSync('firestore.rules', 'utf8'),
+    host: 'localhost',
+    port: 8080,
+  },
+});
+```
+
+This environment has a lot of useful methods such as creating authenticated and unauthenticated contexts to run writes and reads to the Emulator.
+
+```js
+test('An authenticated user can write their profile', async (t) => {
+  const context = testEnv.authenticatedContext('david_123');
+  const userDoc = context.firestore().doc('users/david_123');
+  const result = await testing.assertSucceeds(userDoc.set({ name: 'Im david' }));
+  t.is(result, undefined);
+});
+```
+
+This example creates an authenticated context with a fake `uid` and then tries to write to a document that is expected to succeed. The `assertSucceeds` function will throw if the write fails. You can also test for failures wiht the `assertFails` function.
+
 ##### Monitor requests in the Emulator UI
+When you're writing your rules you'll run into problems and unexpected situations. Sometimes you'll expect a rule to fail, but it will pass. How can get more information? The Emulator UI has a tool called the Request Monitor.
+
+While the emulator is running the Request Monitor will show you every request, the line of code that either allowed or rejected the request, and information about the rules environment.
+
+![Request Monitor List](/request_monitor.png)
+
+![Request Monitor List](/request_monitor_details.png)
+
+This is extremely helpful when debugging and we're going to be using it extensively in the next exercise.
 
 ##### Exercise
+Now we're going to take the time to apply everything we just learned.
 
-#### Role Based Access Control
+<ul class="code-callout">
+  <li>cd /5-security-rules/start</li>
+  <li>npm i</li>
+  <li>npm run emulators</li>
+  <li># Open another terminal tab</li>
+  <li>npm test</li>
+</ul>
+
+<!-- #### Role Based Access Control
 
 ##### Store role information in Firestore
 
-##### Verify the user's role
+##### Verify the user's role 
 
-##### Exercise
+##### Exercise -->

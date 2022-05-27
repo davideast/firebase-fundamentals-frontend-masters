@@ -34,7 +34,7 @@ service cloud.firestore {
 
     function dateIsNotModified() {
       let diff = request.resource.data.diff(resource.data);
-      return diff.unchangedKeys().hasAll([ "date" ]);
+      return diff.unchangedKeys().hasOnly([ "date" ]);
     }
 
     function isBudgetCollaborator(requestUid, budgetId) {
