@@ -1,4 +1,5 @@
 ---
+import { Markdown } from 'astro/components';
 import Layout from '../layouts/Layout.astro';
 import DividerGrid from '../components/DividerGrid.astro';
 const guides = await Astro.glob('./*.md');
@@ -29,6 +30,24 @@ const guides = await Astro.glob('./*.md');
 		</p>
 	</main>
 	<DividerGrid />
+
+	<div class="content-subgrid get-code">
+		<h3>Get the code</h3>
+		<div class="pre-reqs">
+			<ol>
+				<li><a href="https://www.oracle.com/java/technologies/downloads/#jdk18-mac">Install Java 18</a></li>
+				<li><a href="https://nodejs.org/">Install Node 16</a></li>
+			</ol>
+		</div>
+		<Markdown>
+			```bash
+			git clone https://github.com/davideast/firebase-fundamentals-frontend-masters
+			# Run this site
+			cd guide && npm i && npm run dev
+			```
+		</Markdown>
+	</div>
+
 	<section class="list-grid">
 		<h3>Workshop Sections</h3>
 		<ol>
@@ -113,6 +132,32 @@ const guides = await Astro.glob('./*.md');
 		padding-inline-start: 28px;
 		line-height: 1.25;
 	}
+
+	.get-code {
+		margin-block-end: var(--space-3xl);
+	}
+
+	.get-code pre.astro-code {
+		margin-block-start: 0;
+	}
+
+	.get-code .pre-reqs {
+		grid-row: 2;
+	}
+
+	.get-code .pre-reqs ol {
+		list-style-type: decimal;
+		padding-inline-start: var(--space-xl);
+		display: grid;
+		row-gap: var(--space-sm);
+		font-size: 1.5rem;
+	}
+
+	.get-code .pre-reqs ol li a {
+		text-decoration: underline;
+		color: var(--orange-5);
+	}
+
 	:global(.list-grid ol li div span.highlight) {
 		color: unset;
 	}
