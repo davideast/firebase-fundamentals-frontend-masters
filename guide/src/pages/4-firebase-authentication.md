@@ -1,6 +1,6 @@
 ---
 layout: ../layouts/GuideLayout.astro
-title: Firebase Authentication
+title: Firebase Auth
 order: 4
 subtitle: <span class="highlight">Authenticating</span> users, linking <span class="highlight">accounts</span>, and <span class="highlight">admin</span> permissions.
 previous:
@@ -13,7 +13,7 @@ next:
 
 Firebase Authentication is a fully managed authentication system for signing in and managing users without the need of your own server.
 
-How many providers do we have? A lot.
+How many providers are there? A fair amount.
 - Email + Password
 - Anonymous
 - Google, Twitter, Facebook, Apple, Microsoft, Yahoo
@@ -34,11 +34,11 @@ I'm going to be honest with you all on this section. This is going to be an easy
 
 If you understand these topics, you'll be just fine looking up how to use any provider we have. Let's begin by discussing the sign in process.
 
-#### Authentication vs. Authorization
+#### Authentication/Authorization
 Now if you've ever read a tutorial on Authentication you've probably been presented with the "Authentication vs Authorization" dichotomy. Authentication is "who you are" and Authorization being "what you are allowed to do". In this section we are only going to touch upon Authentication. The next section with security rules, will determine authorization.
 
 ##### The uid key
-Talk about how this is so important and we've even used it so much. 
+When a user account is creater they get assigned a special key called a `uid`. This key _uniquely identifies_ the user within Firebase Authentication. This is also vital for saving data within other services like Firestore. You saw in the previous section we were able to get back a user's information and their expenses all from this `uid`. Not only will this allow us to structure user data, but in the next section we'll use it to secure it.
 
 #### Setting up for development
 Regardless of what provider you use, you'll follow a fairly similar process of signing in a user. 

@@ -38,9 +38,6 @@ const guides = await Astro.glob('./*.md');
 				</li>
 			)}
 			<!-- <li>
-				<a href="#">Security Rules</a>
-				<div>The syntax, common patterns, and role based access control.</div>
-			</li>
 			<li>
 				<a href="#">Cloud Functions</a>
 				<div>Triggers, denormalization, and server-side hosting.</div>
@@ -115,5 +112,8 @@ const guides = await Astro.glob('./*.md');
 		margin-block-start: var(--space-xxs);
 		padding-inline-start: 28px;
 		line-height: 1.25;
+	}
+	:global(.list-grid ol li div span.highlight) {
+		color: unset;
 	}
 </style>
