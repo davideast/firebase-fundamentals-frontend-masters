@@ -42,17 +42,32 @@ test('An authenticated user can write to expenses', async (t) => {
 
 });
 
-// 4. A user must have a first name and email
+// 4
 test('A user must have a first name and email', async (t) => {
 
 });
 
-// 5. An expense must have a cost greater than 0
+// 5
 test('An expense must have a cost greater than 0', async (t) => {
 
 });
 
-// 6. After expenses are created you cannot modify their dates
+// 6
 test('After expenses are created you cannot modify their dates', async (t) => {
+
+});
+
+// 7
+test('Collaborators can read expenses', async (t) => {
+
+});
+
+// 8
+test('Unauthenticated users cant read budgets', async (t) => {
+
+});
+
+// 9
+test('Authenticated users can read budgets', async (t) => {
 
 });

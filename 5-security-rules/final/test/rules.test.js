@@ -22,9 +22,24 @@ function assertPermissionDenied(t, result) {
   t.is(result.code, 'permission-denied');
 }
 
-test.before(() => {
+test.before(async () => {
   testEnv.clearFirestore();
-})
+  await testEnv.withSecurityRulesDisabled(async adminContext => {
+    const expensesDoc = adminContext.firestore().doc('users/david_123/expenses/food_518');
+    const budgetDoc = adminContext.firestore().doc('budgets/good_budget');
+    const collabCol = budgetDoc.collection('collaborators');
+    const carolDoc = collabCol.doc('carol_colab');
+    const davidDoc = collabCol.doc('david_123');
+    await carolDoc.set({ role: 'collaborator' });
+    await davidDoc.set({ role: 'collaborator' });
+    await budgetDoc.set({ name: 'Good Budget' });
+    await expensesDoc.set({ cost: 100, date: new Date(), budgetId: 'good_budget' });
+  });
+});
+
+test.after(() => {
+  testEnv.clearFirestore();
+});
 
 // 1
 test('An unauthenticated user fails to write to a profile', async (t) => {
@@ -87,4 +102,28 @@ test('After expenses are created you cannot modify their dates', async (t) => {
   }
   const result = await assertFails(expensesDoc.update({ date: new Date() }));
   assertPermissionDenied(t, result);
+});
+
+// 7
+test('Collaborators can read expenses', async (t) => {
+  const expensePath = 'users/david_123/expenses/food_518';
+  const context = testEnv.authenticatedContext('carol_colab');
+  const result = await assertSucceeds(context.firestore().doc(expensePath).get());
+  t.is(result.id, 'food_518');
+});
+
+// 8
+test('Unauthenticated users cant read budgets', async (t) => {
+  const context = testEnv.unauthenticatedContext();
+  const budgetDoc = context.firestore().doc('budgets/good_budget');
+  const result = await assertFails(budgetDoc.get());
+  assertPermissionDenied(t, result);
+});
+
+// 9
+test('Authenticated users can read budgets', async (t) => {
+  const context = testEnv.authenticatedContext('carol_colab');
+  const budgetDoc = context.firestore().doc('budgets/good_budget');
+  const result = await assertSucceeds(budgetDoc.get());
+  t.is(result.id, 'good_budget');
 });

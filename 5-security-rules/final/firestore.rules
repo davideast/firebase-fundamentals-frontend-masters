@@ -1,8 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // match /{document=**} {
-
     function isUserOwned(uid) {
       return uid == request.auth.uid;
     }
@@ -39,14 +37,33 @@ service cloud.firestore {
       return diff.unchangedKeys().hasAll([ "date" ]);
     }
 
+    function isBudgetCollaborator(requestUid, budgetId) {
+      let collaborator = get(/databases/$(database)/documents/budgets/$(budgetId)/collaborators/$(requestUid));
+      return collaborator.data.role in ['collaborator', 'admin'];
+    }
+
+    // requestUid - the request of the current authenticated user
+    // collectionUid - the owner of the expense's uid
+    function isUserOrCollaborator(requestUid, collectionUid, budgetId) {
+      return isBudgetCollaborator(requestUid, budgetId) || isUserOwned(collectionUid);
+    }
+
     match /users/{uid} {
       allow read: if isUserOwned(uid);
       allow write: if isUserOwned(uid) && isUserObject();
 
       match /expenses/{id} {
-        allow read: if isUserOwned(uid);
-        allow create: if isUserOwned(uid) && isExpenseObject();
-        allow update: if isUserOwned(uid) && isExpenseObject() && dateIsNotModified();
+        allow read: if isUserOrCollaborator(request.auth.uid, uid, resource.data.budgetId);
+        allow create: if isUserOrCollaborator(request.auth.uid, uid, resource.data.budgetId) && isExpenseObject();
+        allow update: if isUserOrCollaborator(request.auth.uid, uid, resource.data.budgetId) && isExpenseObject() && dateIsNotModified();
+      }
+    }
+    
+    match /budgets/{budgetId} {
+      allow read, write: if isBudgetCollaborator(request.auth.uid, budgetId);
+
+      match /collaborators/{uid} {
+        allow read, write: if isBudgetCollaborator(request.auth.uid, budgetId); 
       }
     }
   }
