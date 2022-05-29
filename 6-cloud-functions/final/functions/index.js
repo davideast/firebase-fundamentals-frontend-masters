@@ -5,9 +5,13 @@ const { getAuth } = require('firebase-admin/auth');
 
 const firebaseApp = initializeApp(functions.config().firebase);
 
-exports.helloworld = functions.https.onRequest((request, response) => {
+exports.ssr = functions.https.onRequest((request, response) => {
   functions.logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello from Firebase!");
+  const ONE_HOUR_IN_SECONDS = 3600;
+  response.set(`Cache-Control', 'max-age=600, s-maxage=${ONE_HOUR_IN_SECONDS}`);
+  response.send(`
+  <h1>${Date.now()}</h1>
+  `);
 });
 
 exports.updateUserExpenses = functions.firestore

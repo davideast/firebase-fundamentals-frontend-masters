@@ -1,0 +1,15 @@
+{
+  "name": "6-cloud-functions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "emulators": "sh ./emulators.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "firebase-tools": "^11.0.1"
+  }
+}
