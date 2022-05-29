@@ -25,11 +25,11 @@ Firebase has 19 different services or "products" that you can use. And this can 
 
 Were going to narrow it down and cover:
 
-- [Firebase Hosting](#) – Deploy a site on a fast global CDN
-- [Firestore](#) – A cloud hosted realtime database
-- [Firebase Authentication](#) – A serverless authentication system
-- [Security](#) — Centralized authroization control
-- [Cloud Functions](#) – Run server code in response to events 
+- [Firebase Hosting](https://firebase.google.com/docs/hosting) – Deploy a site on a fast global CDN
+- [Firestore](https://firebase.google.com/docs/firestore/quickstart) – A cloud hosted realtime database
+- [Firebase Authentication](https://firebase.google.com/docs/auth/web/start) – A serverless authentication system
+- [Security](https://firebase.google.com/docs/rules) — Centralized authroization control
+- [Cloud Functions](https://firebase.google.com/docs/functions/) – Run server code in response to events 
 
 By the end of the workshop you will know the ins and outs of how to use all of these Firebase features to build scalable, secure, and just plain old awesome web apps.
 
@@ -55,13 +55,13 @@ Firebase is a _collection of services_ that all can either work independently or
 ##### Traditional
 When you're building a web app in a traditional server architecture, it's going to look a little like this. The browser makes an HTTP request to your server, the server will handle authentication, connect out to the database or some other resource, then return the response back to the browser.
 
-![A](/traditional-arch.svg)
+![A diagram of a traditional architecture](/traditional-arch.svg)
 
 
 ##### Firebase
 Firebase is a little bit different. With Firebase, you can do literally all of this from the browser. The browser makes an HTTP request to a server and returns all the static assets. Then the Firebase JS SDK connects to your Firebase backend and starts authenticating users, reading data, or whatever else you need. Now this isn't to say you can't run Firebase on the server, you absolutely can and we'll be doing that later in the workshop. But this is how straightforward it can be to get set up.
 
-![A](/firebase-arch.svg)
+![A diagram of Firebase architecture](/firebase-arch.svg)
 
 The cornerstone of Firebase is that you can build without running your own servers. 
 
