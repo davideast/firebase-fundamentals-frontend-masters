@@ -1,5 +1,5 @@
 ---
-import { Markdown } from 'astro/components';
+import { Code } from 'astro/components';
 import Layout from '../layouts/Layout.astro';
 import DividerGrid from '../components/DividerGrid.astro';
 const guides = await Astro.glob('./*.md');
@@ -39,13 +39,9 @@ const guides = await Astro.glob('./*.md');
 				<li><a href="https://nodejs.org/">Install Node 16</a></li>
 			</ol>
 		</div>
-		<Markdown>
-			```bash
-			git clone https://github.com/davideast/firebase-fundamentals-frontend-masters
-			# Run this site
-			cd guide && npm i && npm run dev
-			```
-		</Markdown>
+		<Code lang={"bash"} code={`git clone https://github.com/davideast/firebase-fundamentals-frontend-masters
+# Run this site
+cd guide && npm i && npm run dev`} />
 	</div>
 
 	<section class="list-grid">
