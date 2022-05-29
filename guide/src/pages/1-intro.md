@@ -17,6 +17,23 @@ Hello everyone! If you wanted to learn how to build web apps on Firebase, then y
 
 Now you might be asking yourself, what exactly is Firebase? You might be asking that question because you're brand new to Firebase, or because you understand a bit of what Firebase does, but you know there's a lot more to it. Also, you might be asking because you were supposed to be in "Intro to React v7 with Brian Holt", and that was last week. But don't leave, because this is gonna be a good one.
 
+<div aria-hidden="true" class="slide" data-type="main">
+  <div class="mega-title">What exactly is <span class="highlight">Firebase</span>?</div>
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main">
+  <div class="title">What exactly is <span class="highlight">Firebase</span>?</div>
+  <div class="side-grid">
+    <div class="numeric-side">
+      <div class="highlight mega-number">19</div>
+      <div class="subtitle">Products</div>
+    </div>
+    <div class="subtitle">
+      <span class="highlight">Firebase</span> is a platform for <span class="highlight">building</span> mobile and web applications.
+    </div>
+  </div>
+</div>
+
 To answer this question: _Firebase is a platform for building mobile and web applications._ Firebase lets you build without running your own servers. You can securely sign users in, read and write data to a database, all from the browser, without writing any server code. And that's not the only thing that Firebase lets you do.
 
 #### What this workshop covers

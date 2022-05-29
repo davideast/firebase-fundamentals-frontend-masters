@@ -61,6 +61,7 @@ const { url } = Astro.request;
   </div>
 
 </Layout>
+<dialog id="slideBg"></dialog>
 
 <style>
 h2 {
@@ -211,4 +212,100 @@ h2 {
     margin-inline-end: 0px;
   }
 }
+
+#slideBg {
+  height: 100vh;
+  max-height: 100vh;
+  border: 0;
+  width: 100vw;
+  background-color: var(--theme-bg);
+  max-width: 100vw;
+  color: var(--theme-text);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+:global(.slide) {
+  display: none;
+  height: 100%;
+}
+:global(dialog .slide:first-child) {
+  display: flex;
+  width: 1080px;
+}
+:global(.slide[data-type="main"]) {
+  flex-direction: column;
+  justify-content: center;
+  padding-inline: var(--space-lg);
+  gap: var(--space-2xl);
+  width: 1080px;
+}
+:global(.slide .title) {
+  font-family: var(--font-mono);
+  font-weight: bold;
+  font-size: 3.5rem;
+}
+:global(.slide .side-grid) {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  align-items: center;
+  gap: var(--space-4xl);  
+}
+:global(.slide .numeric-side) {
+  display: grid;
+  gap: var(--space-xs);
+  border-right: 2px solid var(--orange-5);
+}
+:global(.numeric) {
+  font-family: var(--font-mono);
+}
+:global(.mega-number) {
+  font-family: var(--font-mono);
+  font-size: 6rem;
+  font-weight: bold;
+}
+:global(.subtitle) {
+  font-size: 1.75rem;
+  line-height: 1.5;
+}
+:global(.mega-title) {
+  font-size: 7.25rem;
+  font-family: var(--font-mono);
+  font-weight: bold;
+  line-height: 1.35;
+}
 </style>
+
+<script type="module">
+const dialog = document.querySelector('#slideBg');
+const slides = Array.from(document.querySelectorAll('.slide'));
+let currentIndex = 0;
+
+function getCurrentSlide() {
+  return document.querySelector('.slide[data-current="true"]');
+}
+
+function toggleDialog() {
+  dialog.getAttribute('open') == null ? 
+      dialog.showModal() : 
+      dialog.close();
+  insertSlide(currentIndex);
+}
+
+function insertSlide(index) {
+  dialog.innerHTML = '';
+  dialog.appendChild(slides.at(index));
+}
+
+document.addEventListener('keyup', keyupEvent => {
+  if(keyupEvent.key === '.') {
+    toggleDialog();
+  } else if(keyupEvent.key === 'ArrowRight') {
+    currentIndex < slides.length-1 ? currentIndex = currentIndex + 1 : null;
+  } else if(keyupEvent.key === 'ArrowLeft') {
+    currentIndex > 0 ? currentIndex = currentIndex - 1 : null;
+  }
+  insertSlide(currentIndex);
+})
+</script>
