@@ -24,7 +24,7 @@ Now you might be asking yourself, what exactly is Firebase? You might be asking 
 <div aria-hidden="true" class="slide" data-type="main" data-title="Firebase is for building">
 
   <div class="title">What exactly is <span class="highlight">Firebase</span>?</div>
-  <div class="side-grid">
+  <div class="side-grid intro">
     <div class="numeric-side">
       <div class="highlight mega-number">19</div>
       <div class="subtitle">Products</div>
@@ -33,6 +33,7 @@ Now you might be asking yourself, what exactly is Firebase? You might be asking 
       <span class="highlight">Firebase</span> is a platform for <span class="highlight">building</span> mobile and web applications.
     </div>
   </div>
+
 </div>
 
 To answer this question: _Firebase is a platform for building mobile and web applications._ Firebase lets you build without running your own servers. You can securely sign users in, read and write data to a database, all from the browser, without writing any server code. And that's not the only thing that Firebase lets you do.

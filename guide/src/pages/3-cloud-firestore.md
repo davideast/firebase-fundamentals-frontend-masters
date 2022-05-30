@@ -13,27 +13,94 @@ next:
 
 Up until this point we've been covering Firebase from a general point of view. From here on out, we'll be getting really specific and focusing on individual products and their features. 
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="General to Focused">
+  <div class="heading-group">
+    <div class="main-title">General to <span class="highlight">Focused</span></div>
+  </div>
+  <p class="title">
+    From here on out, we'll be getting focusing on individual <span class="highlight">Firebase services</span>.
+  </p>
+</div>
+
 We saw that with security it's really important to have authentication figured out. But! We're going to start with the database, because well that's the fun part.
 
 #### What is Firestore?
 Firestore is a _NoSQL_ document database, with _realtime_ and _offline_ capabilities. Firestore is designed to reduce if not eliminate slow queries. In fact, if you manage to write a slow query with Firestore it's likely because you're downloading too many documents at once. With Firestore you can query for data, and receive updates within `500ms` every time a data updates within the database. 
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="What is Firestore?">
+
+  <div class="title">What is <span class="highlight">Firestore</span>?</div>
+  <div class="side-grid firestore">
+    <div class="numeric-side">
+      <div class="highlight mega-number">NoSQL</div>
+      <div class="subtitle">Database</div>
+    </div>
+    <div class="subtitle">
+      <span class="highlight">Firestore</span> is a <span class="highlight">NoSQL</span> database with <span class="highlight">realtime</span> and <span class="highlight">offline</span> capabilities.
+    </div>
+  </div>
+  
+</div>
 
 Firestore is extremely powerful, but there's a bit of a perspective shift if you're coming from a SQL background.
 
 #### SQL and NoSQL
 Many developers come to NoSQL with at least some SQL experience. They are used to a world of schemas, normalization, joins, and rich querying features. NoSQL tends to be a bit of jarring experience at first because it has different priorities. SQL prioritizes having data in a _uniform_ and _distinct_ model. 
 
-![Two SQL tables](/tbl_join.svg)
+<div aria-hidden="true" class="slide" data-type="main" data-title="SQL and NoSQL">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">SQL</span> and <span class="highlight">NoSQL</span></div>
+  </div>
+  <p class="title">
+    NoSQL tends to be a bit of jarring experience at first because it has <span class="highlight">different priorities</span>.
+  </p>
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="SQL and NoSQL">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">SQL</span> and <span class="highlight">NoSQL</span></div>
+  </div>
+  <p class="title">
+    NoSQL tends to be a bit of jarring experience at first because it has <span class="highlight">different priorities</span>.
+  </p>
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Tables">
+  <img src="/tbl_join.svg" alt="Two SQL tables" class="height-80">
+</div>
 
 This data model is built through tables. You can think of tables in two dimensions: _rows_ and _columns_. Rows are a single record or object within the table. Columns are the properties on that object. Columns provide a rigid but high level of integrity to your data structure.
 
-![A table of expenses](/tbl_expenses.svg)
+<div aria-hidden="true" class="slide total-center" data-type="main" data-title="Rows and Columns">
+  <div>
+    <img src="/tbl_expenses.svg" alt="A table of expenses">
+  </div>
+</div>
 
 This table has uniform _schema_ that all records must follow. This gives us a high amount of integrity within the data model at the cost of making variants of this record. You can't add a single column onto a single row. If a new column is created, every row gets that column, even if the value is just null. Let's say we wanted to add another column to this `tbl_expenses` table: `approval`. 
 
-![A table of expenses now with a new column](/tbl_expenses_approval.svg)
+<div aria-hidden="true" class="slide" data-type="main" data-title="Adding columns">
+  <div>
+    <img src="/tbl_expenses_approval.svg" alt="A table of expenses now with a new column">
+  </div>
+</div>
 
 Expenses can be personal so this column may not make sense for every column. For those cases how do we fill the column? Do we make it `false`? Well, that might communicate that the manager didn't approve a personal charge and it could also accidentally end up a query looking for all unapproved expenses. How about making it `null`? This value is supposed to be a `boolean`, but if we make it `nullable`, it can have three states. If you can have three states, is it really a `boolean`? 
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Joins">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Joins</span></div>
+  </div>
+
+```sql
+-- Union expenses with business expenses
+SELECT id, cost, date, uid
+  FROM tbl_expenses
+UNION
+SELECT id, cost, date, uid
+  FROM tbl_business_expenses
+```
+</div>
 
 Usually in those cases you would have to create another table such as: `tbl_business_expenses`. Now, to get a list of personal and buisness expenses back you'd have to write a query.
 
@@ -53,14 +120,39 @@ A query like that can be rather slow. If this kind of query is one of the most i
 ##### Reads over Writes
 NoSQL databases don't care as much about uniformity and definitely not as much about having a distinct model. What Firestore priorities is fast reads. In many applications it's common to have more reads than writes. Take a second and think about some of the most common apps and sites in your life. Now think about how much more you consume the content from them versus write updates to them. Even if you are an avid poster, it's still likely that you scroll through your feed more.
 
-![A diagram showing more reads than writes](/reads_over_writes.svg)
+<div aria-hidden="true" class="slide" data-type="main" data-title="Reads over writes">
+  <img src="/reads_over_writes.svg" alt="A diagram showing more reads than writes">
+</div>
 
 In the Firestore world, we're going to be shifting away from data normalization and strong distinctive models. What we'll get in return are _blazing fast queries_ with _realtime_ streaming. In addition, as your database scales up to support more data it can be distributed across several machines to handle the work behind the scenes. This concept is known as _scaling horizontally_ and it's how Firestore scales up automatically for you.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Scaling">
+
+  <div class="main-title"><span class="highlight">Scaling</span></div>
+  <div class="side-grid scaling">
+    <div class="">
+      <div class="highlight numeric">Verically</div>
+      <div class="subtitle">Get beefier machines</div>
+    </div>
+    <div class="">
+      <div class="highlight numeric">Horizontally</div>
+      <div class="subtitle">Distributed across several machines</div>
+    </div>
+  </div>
+
+</div>
 
 With all that out of the way, let's see how you store and model data in Firestore.
 
 ##### Tables -> Collections 
 If SQL databases use tables to structure data, what do NoSQL database use? Well, in Firestore's case data is stored in a hierarchical folder like structure using collections and documents.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Tables -> Collections">
+  <div class="heading-group">
+    <div class="main-title">Tables -> <span class="highlight">Collections</span></div>
+  </div>
+  <img class="width-50" src="/collection_document.svg" alt="Diagram of two documents in an expenses collection with different schemas" />
+</div>
 
 ![Diagram of two documents in an expenses collection with different schemas](/collection_document.svg)
 
@@ -69,15 +161,44 @@ Collections are really just a concept for documents all stored at a similar path
 ##### Rows -> Documents
 Firestore consists of documents, which are like objects. They're not just basic JSON objects, they can store complex types of data like binary data, references to other documents, timestamps, geo-coordinates, and so on and so forth. Now in SQL all rows had to have the same columns. But that's not the case in NoSQL every document can have whatever structure it wants.
 
-![Comparing a SQL row to a NoSQL document](/row_doc.svg)
+<div aria-hidden="true" class="slide" data-type="main" data-title="Rows -> Documents">
+  <div class="heading-group">
+    <div class="main-title">Rows -> <span class="highlight">Documents</span></div>
+  </div>
+  <img class="width-90" src="/row_doc.svg" alt="Comparing a SQL row to a NoSQL document" />
+</div>
 
 Each document can be totally different from the other if you want. That's usually not the case in practice, but you have total flexibility at the database level. You can lock down the schema with security rules, but we'll get into that later. 
 
 #### Retrieving data
 With SQL you think about retrieving data in terms of queries. While that is still true here, you should primarily think about data in terms of locations with path names. In the JavaScript SDK we call this a reference.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Rows -> Documents">
+  <div class="heading-group">
+    <div class="main-title">Retrieving <span class="highlight">Data</span></div>
+  </div>
+</div>
+
 ##### References
 Documents and collections are identified by a unique path, to refer to this location you create a reference.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="References">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">References</span></div>
+  </div>
+
+```js
+import { collection } from 'firebase/firestore';
+
+const usersCollectionReference = collection(db, 'users');
+// or for short
+const usersCol = collection(db, 'users');
+// get a single user
+const userDoc = doc(db, 'users/david');
+```
+
+</div>
+
 
 ```js
 import { collection } from 'firebase/firestore';
@@ -94,6 +215,23 @@ Both of those references will allow you to get all of the data at that location.
 ##### onSnapshot()
 With a reference made, we have a decision to make. Do we want to get the data one time, or do we want the realtime synchronized data state every time there's an update at that location? The realtime option sounds fun, so let's do that first.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="onSnapshot()">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">onSnapshot()</span></div>
+  </div>
+
+```js
+onSnapshot(userDoc, snapshot => {
+  console.log(snapshot);
+});
+
+onSnapshot(usersCol, snapshot => {
+  console.log(snapshot);
+});
+```
+
+</div>
+
 ```js
 onSnapshot(userDoc, snapshot => {
   console.log(snapshot);
@@ -105,6 +243,29 @@ onSnapshot(usersCol, snapshot => {
 ```
 
 The `onSnapshot()` function takes in either a collection or document reference. It returns the state of the data in the callback function and will fire again for any updates that occur at that location. What you notice too is that it doesn't return the data directly. It returns an object called a snapshot. A snapshot is an object that contains the data and a lot of important information about its state as well. We'll get into the other info in a bit, but to get the actual data, you tap into the data function.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="onSnapshot() data">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">onSnapshot() data</span></div>
+  </div>
+
+```js
+onSnapshot(userDoc, snapshot => {
+  // this one one doc
+  console.log(snapshot);
+  // this is the data
+  console.log(snapshot.data());
+});
+
+onSnapshot(usersCol, snapshot => {
+   // this is an array of docs
+  console.log(snapshot.docs);
+  // you can iterate through and map what you need
+  console.log(snapshot.docs.map(d => d.data());
+});
+```
+</div>
+
 
 ```js
 onSnapshot(userDoc, snapshot => {
@@ -134,13 +295,47 @@ onSnapshot(userDoc, snapshot => {
 updateDoc(userDoc, { name: 'David!' });
 ```
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Realtime updates">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Realtime updates</span></div>
+  </div>
+
+```js
+onSnapshot(userDoc, snapshot => {
+  console.log(snapshot.data());
+  // First time: "David"
+  // Second time: "David!"
+});
+
+updateDoc(userDoc, { name: 'David!' });
+```
+</div>
+
 This isn't just local, this callback fires across all connected devices.
 
 #### Writing data
 Speaking of updates. What we see right here is one of the several update functions or as we call them _mutation functions_.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Writing data">
+  <div class="heading-group">
+    <div class="main-title">Writing <span class="highlight">data</span></div>
+  </div>
+  <div class="title">Using <span class="highlight numeric">mutation functions</span></div>
+</div>
+
 ##### setDoc()
 In Firestore calling `setDoc()` is considered a "destructive" operation. It will overwrite any data at that given path with the new data provided.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="setDoc()">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">setDoc()</span></div>
+  </div>
+
+```js
+const davidDoc = doc(firestore, 'users/david_123');
+setDoc(davidDoc, { name: 'David' });
+```
+</div>
 
 ```js
 const davidDoc = doc(firestore, 'users/david_123');
@@ -157,12 +352,34 @@ const davidDoc = doc(firestore, 'users/david_123');
 updateDoc(davidDoc, { name: 'David!!!!' });
 ```
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="updateDoc()">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">updateDoc()</span></div>
+  </div>
+
+```js
+const davidDoc = doc(firestore, 'users/david_123');
+updateDoc(davidDoc, { name: 'David!!!!' });
+```
+</div>
+
 It's important to note that `updateDoc()` will fail if the document does not already exist. In the case where you can't be certain if a document exists but you don't want to perform a desctructive set, you can merge the update.
 
 ```js
 const newDoc = doc(firestore, 'users/new_user_maybe');
 setDoc(newDoc, { name: 'Darla' }, { merge: true });
 ```
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="setDoc() w/ merge">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">setDoc()</span> with a merge</div>
+  </div>
+
+```js
+const newDoc = doc(firestore, 'users/new_user_maybe');
+setDoc(newDoc, { name: 'Darla' }, { merge: true });
+```
+</div>
 
 This will create a new document if needed and if the document exists, it will only update with the data provided. It's the best of both worlds.
 
@@ -173,6 +390,17 @@ Deleting a document is fairly straighfoward.
 const davidDoc = doc(firestore, 'users/david_123');
 deleteDoc(davidDoc);
 ```
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="deleteDoc()">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">deleteDoc()</span></div>
+  </div>
+
+```js
+const davidDoc = doc(firestore, 'users/david_123');
+deleteDoc(davidDoc);
+```
+</div>
 
 ##### Generating Ids
 Now that's for single documents. What about adding new items to a collection? Do you have to think of a new ID every time?
@@ -185,6 +413,20 @@ const usersCol = collection(firestore, 'users');
 addDoc(usersCol, { name: 'Darla' });
 ```
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Generating">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Generating</span> Ids</div>
+  </div>
+
+```js
+// Don't want to have to name everthing? Good!
+const someDoc = doc(firestore, 'users/some-name');
+const usersCol = collection(firestore, 'users');
+// Generated IDs!
+addDoc(usersCol, { name: 'Darla' });
+```
+</div>
+
 The `addDoc()` function will create a document reference behind the scenes, assign it a generated id, and then data is sent to the server. What if you need access to this generated ID before you send its data off to the server?
 
 ```js
@@ -193,6 +435,19 @@ const newDoc = doc(userCol);
 console.log(newDoc.id); // generated id, no data sent to the server
 setDoc(newDoc, { name: 'Fiona' }); // Now it's sent to the server
 ```
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Generated Ids are local">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Generated</span> Ids are local</div>
+  </div>
+
+```js
+// The ids are generated locally as well
+const newDoc = doc(userCol);
+console.log(newDoc.id); // generated id, no data sent to the server
+setDoc(newDoc, { name: 'Fiona' }); // Now it's sent to the server
+```
+</div>
 
 Generated Ids in Firestore are created on the client. By creating an empty named child document reference from a collection reference, it will automatically assign it an generated id. From there you can use that id for whatever you need before sending data up to the server.
 
@@ -208,7 +463,37 @@ setDoc(newDoc, {
 });
 ```
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Don't trust local date">
+  <div class="heading-group">
+    <div class="main-title">Don't <span class="highlight">trust</span> local dates</div>
+  </div>
+
+```js
+const newDoc = doc(firestore, 'marathon_results/david_123');
+// Imagine this runs automatically when a runner crosses the finish line
+setDoc(newDoc, { 
+  name: 'David', 
+  finishedAt: new Date() // Something like: '5/1/2022 9:32:12 EDT'
+});
+```
+</div>
+
 In this example, this user document is added with an `finishedAt` field set to the device date. But it's only the current date based on that machine. Imagine if this was an app one the user's phone that ran this code when they crossed the finish line. The user could change their device settings and set the world record if they wanted to. Instead, we rarely use local dates for timestamps and we use value to tell Firestore to apply a time on the server.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Use server timestamps">
+  <div class="heading-group">
+    <div class="main-title">Use <span class="highlight">server timestamps</span></div>
+  </div>
+
+```js
+const newDoc = doc(firestore, 'marathon_results/david_123');
+// Imagine this runs automatically when a runner crosses the finish line
+setDoc(newDoc, { 
+  name: 'David', 
+  finishedAt: serverTimestamp()
+});
+```
+</div>
 
 ```js
 const newDoc = doc(firestore, 'marathon_results/david_123');
@@ -224,11 +509,28 @@ This function acts as a placeholder on the client that tells Firestore to apply 
 ##### Incrementing values
 One of the most common tasks with data is just simply incrementing and decrementing values. The math is simple, but the edge cases in a realtime system can be really tricky. 
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Incrementing values">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Incrementing</span> values</div>
+  </div>
+
+1. You first need to know the state of the data
+2. Then you need to add or substract from the value
+3. Then you update the new score
+</div>
+
 1. You first need to know the state of the data
 2. Then you need to add or substract from the value
 3. Then you update the new score
 
 But what happens if that value was updated during that process? The new value will likely be wrong. Firestore has a few ways of handling these types of updates, but the most convienent are the `increment()` and `decrement()` functions.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Incrementing values problems">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Incrementing</span> values</div>
+  </div>
+  <div class="title">But what happens if that value was updated during that process?</div>
+</div>
 
 ```js
 const davidScoreDoc = doc(firestore, 'scores/david_123');
@@ -242,12 +544,50 @@ updateDoc(darlaScoreDoc, {
 })
 ```
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="increment()">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">increment()</span></div>
+  </div>
+
+```js
+const davidScoreDoc = doc(firestore, 'scores/david_123');
+const darlaScoreDoc = doc(firestore, 'scores/darla_999');
+
+updateDoc(davidScoreDoc, {
+  score: decrement(10),
+})
+updateDoc(darlaScoreDoc, {
+  score: increment(100),
+})
+```
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="One write per second">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">One</span> write per second</div>
+  </div>
+  <div class="title">Firestore can only reliably handle 1 write per second on a document.</div>
+</div>
+
 The functions ensure that the incrementing and decrementing operations happen the latest value in the database. It's important to note that these functions can only work reliably if ran at most once per second. If you need updates faster than that you can use a solution called a _distributed counter_. But that's for another class.
 
 Now there's one thing you should notice here. We're making updates to the server, but nowhere are we awaiting the result of the update. It's still an async operation, but why aren't we awaiting the result?
 
 #### Synchronization
 I'm about to dive into one of the core principles of the Firebase SDKs: unidirectional data-flow. If you've ever used React, Redux, or something similar you'll be familiar with this concept.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="CRUD vs Synch">
+  <div class="heading-group">
+    <div class="main-title">CRUD vs. <span class="highlight">Synchronization</span></div>
+  </div>
+
+```js
+const response = await fetch('/api/users', { method: 'POST', body: bodyData });
+const newUser = await response.json();
+console.log(newUser.id);
+```
+</div>
+
 
 In a CRUD like system you'll make a request to a server to create a resource and get the result back in the response.
 
@@ -256,6 +596,23 @@ const response = await fetch('/api/users', { method: 'POST', body: bodyData });
 const newUser = await response.json();
 console.log(newUser.id);
 ```
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Synchronization">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Synchronization</span></div>
+  </div>
+
+```js
+onSnapshot(userDoc, snapshot => {
+  const user = snapshot.data();
+  console.log(data);
+  // First time: { name: "David" }
+  // Second time: { name: "David!" }  
+});
+
+updateDoc(userDoc, { name: 'David!' });
+```
+</div>
 
 During this process we're waiting on the server response to continue. We're not locking up the main thread obviously, but the response is what makes the app function. What if we could instantly get the response back? That's what happens with listeners in Firestore.
 
@@ -355,7 +712,7 @@ This tells you information about whether the data has been sent to the server an
 
 As you can see, Firestore is really powerful when it comes to realtime synchronization and offline capabilities. We haven't even begun to see querying yet either, but don't worry, it's just up ahead.
 
-##### Exercise
+##### Demo
 Let's take a break to write some code. I'll start with a small demo and I'll have you repeat after me.
 
 <ul class="code-callout">
@@ -519,8 +876,8 @@ Instead we explicitly ask Firestore to create a new index that is based on these
 
 This is called a _composite index_ and it's what enables you to query beyond one field in Firestore. You might be thinking at this point: _"Why doesn't Firestore automatically create composite indexes for every document?"_ The problem there is that there are far too many possible combinations when it comes to composite indexing. A document of `20` fields would create 6,000,000,000,000,000 different combinations.
 
-##### Exercise
-Exercise time! Let's write some queries! Back the same 
+##### Demo
+Demo time! Let's write some queries! Back the same 
 
 <ul class="code-callout">
   <li>cd /3-cloud-firestore/start</li>
@@ -594,7 +951,7 @@ expensesQuery = query(
 
 The result of this query will return expenses that contain the category of `'fun'` or `'kids'`. You might end up getting back an expense tagged as `'kids'` and 'transportation', maybe `'fun'` and 'food', or in some cases you'll get `'fun'` and `'kids'` if that pair exists.
 
-##### Exercise
+##### Demo
 Let's dive back into the code 
 
 <ul class="code-callout">
@@ -670,7 +1027,7 @@ expensesQuery = query(
 
 This one may look a little complicated, but let's take a moment to step through what's happening. We start by creating the same query as before. The last `10` expenses within `1/1/2022` to `2/1/2022`. Then we retrieve the docs in the query. In this case let's assume the user clicked on a button or scrolled to issue the query. After we have the documents, we'll get the very first one `.at(0)` and use that to create a new query that ends just right before that document. The `endBefore()` cursor function knows to cut off the range just right before it sees that document. If we repeat this process we'll eventually get back to the last `10` expenses in the full data set.
 
-##### Exercise
+##### Demo
 Let's get to the code.
 
 <ul class="code-callout">
@@ -796,8 +1153,8 @@ expensesQuery = query(
 
 Now we have the best of both worlds. We can query across single users and we can query across all expenses.
 
-##### Exercise
-Time for another exercise!
+##### Demo
+Time for another demo!
 
 <ul class="code-callout">
   <li>cd /3-cloud-firestore/start</li>

@@ -219,6 +219,13 @@
     }
   }
 
+  dialog:not([open])#slideBg {
+    opacity: 0;
+    height: 0vh;
+    max-height: 0vh;
+    pointer-events: none;
+  }
+
   #slideBg {
     height: 100vh;
     max-height: 100vh;
@@ -263,14 +270,27 @@
   }
 
   :global(.slide .title) {
-    font-family: var(--font-mono);
-    font-weight: bold;
-    font-size: 3.5rem;
+    font-family: var(--font-body);
+    font-size: 3.25rem;
   }
 
   :global(.slide .side-grid) {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--space-4xl);
+  }
+
+  :global(.slide .side-grid.intro) {
+    display: grid;
+    grid-template-columns: 1fr 2.5fr;
+    align-items: center;
+    gap: var(--space-4xl);
+  }
+
+  :global(.slide .side-grid.firestore) {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr;
     align-items: center;
     gap: var(--space-4xl);
   }
@@ -335,12 +355,37 @@
     display: flex;
     justify-content: space-between;
   }
+  :global(dialog nav.pager ul li:first-child::before) {
+    content: '< ';
+  }
+  :global(dialog nav.pager ul li:nth-child(2)::after) {
+    content: ' >';
+  }
+  :global(dialog img) {
+    max-width: 100%;
+  }
+  :global(dialog img.height-80) {
+    height: 80%;
+  }
+  :global(dialog img.width-50) {
+    width: 50%;
+  }
+  :global(dialog img.width-90) {
+    width: 90%;
+  }
+  :global(dialog .slide .astro-code) {
+    margin-inline: 0;
+  }
+  :global(dialog .slide.total-center) {
+    justify-content: center;
+    align-items: center;
+  }
 </style>
 
 <script type="module">
   const dialog = document.querySelector('#slideBg');
   const slides = Array.from(document.querySelectorAll('.slide'));
-  const store = localStore('slide_index');
+  const store = localStore(`slide_index_${location.pathname}`);
   externalizeLinks();
 
   function localStore(key) {
@@ -354,8 +399,8 @@
     }
   }
 
-  function externalizeLinks(links = document.querySelectorAll('a')) {
-    Array.from(document.querySelectorAll('a')).forEach(anchor => {
+  function externalizeLinks(links = document.querySelectorAll('.slide a')) {
+    Array.from(links).forEach(anchor => {
       anchor.setAttribute('rel', 'noopener');
       anchor.setAttribute('target', '_blank');
     });
@@ -397,13 +442,13 @@
     const ul = document.createElement('ul');
     if(previousSlide) {
       const li = document.createElement('li');
-      li.textContent = `< ${previousSlide.getAttribute('data-title')}`;
+      li.textContent = previousSlide.getAttribute('data-title');
       ul.appendChild(li);
     }
 
     if(nextSlide) {
       const li = document.createElement('li');
-      li.textContent = `${nextSlide.getAttribute('data-title')} >`;
+      li.textContent = nextSlide.getAttribute('data-title');
       ul.appendChild(li);
     }
     pager.innerHTML = '';
