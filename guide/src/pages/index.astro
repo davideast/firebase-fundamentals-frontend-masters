@@ -25,6 +25,17 @@ const guides = await Astro.glob('./*.md');
 			</div>
 
 		</div>
+		<div class="mission">
+			<div class="mission-label">Mission</div>
+			<h4 class="mission-statement">
+			Build 
+				<span class="highlight">realtime</span>, 
+				<span class="highlight">authenticated</span>, 
+				<span class="highlight">scalable</span>, and 
+				<span class="highlight">secure</span> 
+				websites on Firebase.
+			</h4>
+		</div>
 		<p class="pull-text subtitle">
 			A <span class="highlight">companion guide</span> to the Frontend Masters workshop.
 		</p>
@@ -52,11 +63,6 @@ cd guide && npm i && npm run dev`} />
 					<div set:html={g.frontmatter.subtitle}></div>
 				</li>
 			)}
-			<!-- <li>
-			<li>
-				<a href="#">Cloud Functions</a>
-				<div>Triggers, denormalization, and server-side hosting.</div>
-			</li> -->
 		</ol>
 	</section>
 </Layout>
@@ -75,6 +81,26 @@ cd guide && npm i && npm run dev`} />
 	.title-group {
 		display: grid;
 		gap: var(--space-xl);
+	}
+	
+	.mission {
+		grid-column: 1 / -1;
+		margin-top: var(--space-2xl);
+		display: grid;
+		gap: var(--space-sm);
+	}
+
+	.mission-statement {
+    font-size: 2.5rem;
+    font-weight: normal;
+	}
+
+	.mission-label {
+		font-size: .875rem;
+		font-weight: normal;
+		letter-spacing: 1px;
+		text-transform: uppercase;
+		font-family: var(--font-mono);
 	}
 
 	.bio {

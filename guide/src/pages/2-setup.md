@@ -11,6 +11,62 @@ next:
   href: /3-cloud-firestore
 ---
 
+#### What did we learn?
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="What did we learn?">
+  <div class="heading-group">
+    <div class="main-title">What did we <span class="highlight">learn</span>?</div>
+  </div>
+</div>
+
+##### Firebase Project
+All Firebase backend services are housed by a Firebase Project. When you visit the console you select a project and the services related to that project show their associated data. You can own multiple projects for multiple apps.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Firebase Project">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Firebase</span> Project</div>
+  </div>
+  <p class="title">
+    Firebase <span class="highlight">backend</span> services are housed by a Firebase Project.
+  </p>
+</div>
+
+##### Firebase App
+To connect out to a Firebase Project we need create or use the configuration we call a Firebase App. A project can have multiple apps depending on the types of platforms it needs to support. If you're just building a web app, then you only needs one app. If you're going to build a cross platform app, then you'll need an app for each platform. 
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Firebase App">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Firebase</span> App</div>
+  </div>
+  <p class="title">
+    A project contains 1 (or more) apps to let clients to connect to services in a project.
+  </p>
+</div>
+
+##### JavaScript SDK
+Firebase comes with a JavaScript SDK that handles a lot for you. You don't have to write any networking or caching code. The JavaScript uses the configuration of a Firebase App to know what backend service to connect to.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="JavaScript SDK">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">JavaScript</span> SDK</div>
+  </div>
+  <p class="title">
+    Write code to perform actions against Firebase services.
+  </p>
+</div>
+
+##### Firebase CLI
+Firebase also comes with a CLI that can perform many actions. In this example we used it to deploy to Firebase Hosting. Stay tuned though, we're about to use the Firebase CLI for one of the most useful bits of Firebase development, the Emulator Suite.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Firebase CLI">
+  <div class="heading-group">
+    <div class="main-title">Firebase <span class="highlight">CLI</span></div>
+  </div>
+  <p class="title">
+    Bootstrap, deploy, and develop against Firebase projects.
+  </p>
+</div>
+
 #### What went wrong?
 We saw a lot happen in that naive project. There was some good there, we created a realtime listener, did anonymous authentication, but there was no real good foundation. What was wrong?
 
@@ -79,34 +135,6 @@ I didn't take any time to think about my data model. Firestore is a NoSQL databa
     Understand the benefits of NoSQL to write your data model
   </p>
 </div>
-
-#### Synchronization
-One of the cornerstones of Firebase is data synchronization. But what does that fancy term really mean? One mechanism of realtime messaging is called pub/sub. You publish a message and any client that is subscribed, receives it in realtime. But the kicker is that, you only get the message. That sounds normal right? But let's say you're building a todo app and you add a new todo, so you publish that message. Well each client receives that message and then adds it to the local data model. 
-
-<div aria-hidden="true" class="slide" data-type="main" data-title="Synchronization">
-  <div class="heading-group">
-    <div class="main-title"><span class="highlight">Synchronization</span></div>
-  </div>
-  <p class="title">
-    TODO: IMAGE
-  </p>
-</div>
-
-Each client could have slightly different code or logic, and that makes the data representation different and causes bugs. Synchronization is different. With synchronization, you publish a todo item as a message, and the server adds it to a database, and publishes the whole new data model that every client would have needed to compute. That's what Firestore does inside of the listener.
-
-#### Unidirectional Data Flow
-You may have noticed that there was a common pattern with the Firebase SDK. We never asked for updates explicitly. We would issue a change of some kind then listen for it in a callback. This is sometimes different for many developers, but it really helps keep an app snappy and responsive to user input. 
-
-<div aria-hidden="true" class="slide" data-type="main" data-title="Synchronization">
-  <div class="heading-group">
-    <div class="main-title"><span class="highlight">Synchronization</span></div>
-  </div>
-  <p class="title">
-    TODO: IMAGE/CODE
-  </p>
-</div>
-
-Take a look at `addDoc()`. We're not returning the new array data from the collection, it's just a receipt that the server got the update. 
 
 #### Let's do this again
 Let's take this project and give it a proper Firebase foundation.

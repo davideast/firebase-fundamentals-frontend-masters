@@ -26,7 +26,7 @@ Now you might be asking yourself, what exactly is Firebase? You might be asking 
   <div class="title">What exactly is <span class="highlight">Firebase</span>?</div>
   <div class="side-grid intro">
     <div class="numeric-side">
-      <div class="highlight mega-number">19</div>
+      <div class="highlight mega-number">20+</div>
       <div class="subtitle">Products</div>
     </div>
     <div class="subtitle">
@@ -38,9 +38,13 @@ Now you might be asking yourself, what exactly is Firebase? You might be asking 
 
 To answer this question: _Firebase is a platform for building mobile and web applications._ Firebase lets you build without running your own servers. You can securely sign users in, read and write data to a database, all from the browser, without writing any server code. And that's not the only thing that Firebase lets you do.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="A short origin story">
+  <div class="mega-title">A short <span class="highlight">origin</span> story</div>
+</div>
+
 #### What this workshop covers
 
-Firebase has 19 different services or "products" that you can use. And this can feel quite overwhelming, but don't worry. That's why you're here. Today I'm going to teach you the fundamentals of using Firebase to build web apps.
+Firebase has `20+` different services or "products" that you can use. And this can feel quite overwhelming, but don't worry. That's why you're here. Today I'm going to teach you the fundamentals of using Firebase to build web apps.
 
 <div aria-hidden="true" class="slide" data-type="main" data-title="What we're going to cover">
   <div class="heading-group">
@@ -72,9 +76,12 @@ My name is [David East](https://twitter.com/_davideast) and I'm incredibly thril
   <div class="heading-group">
     <div class="slide-label">About the author</div>
     <div class="main-title">My name is <span class="highlight">David East</span></div>
+    <div class="subtitle dim">I've been working at Firebase since 2014</div>
   </div>
   <figure class="photo-quote">
-    <img src="/de-old.png" alt="An old photo of David East from 2014, where his hair is too long for his own liking nowadays." />
+    <a href="https://twitter.com/_davideast">
+      <img src="/de-old.png" alt="An old photo of David East from 2014, where his hair is too long for his own liking nowadays." />
+    </a>
     <figcaption>
       <p>This was my team photo in 2014.</p>
       <p>I had no idea what I was doing</p>
@@ -87,7 +94,9 @@ My name is [David East](https://twitter.com/_davideast) and I'm incredibly thril
 I'm a Developer Relations Engineer at Google, working on the Firebase team. But long before I was at Google. I worked at a small little company called Firebase. I joined the team as the 16th employee and I've been along for this wild ride ever since.
 
 <figure class="photo-quote">
-  <img src="/de-old.png" alt="An old photo of David East from 2014, where his hair is too long for his own liking nowadays." />
+  <a href="https://twitter.com/_davideast">
+    <img src="/de-old.png" alt="An old photo of David East from 2014, where his hair is too long for his own liking nowadays." />
+  </a>
   <figcaption>
     <p>This was my team photo in 2014.</p>
     <p>I had no idea what I was doing</p>
@@ -95,6 +104,12 @@ I'm a Developer Relations Engineer at Google, working on the Firebase team. But 
 </figure>
 
 On my first day at Firebase, _there were only two products_: the Realtime Database and Authentication. Today there's 19. It's been an absolute joy watching this little startup grow into a full blown platform for building anything you can imagine. And I really mean that. 
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="What is Firebase?">
+  <div class="title">Firebase <span class="highlight">Architecture</span></div>
+  <div class="subtitle dim">vs</div>
+  <div class="title">Traditional <span class="highlight">Architecture</span></div>
+</div>
 
 #### Architecture
 Firebase is a _collection of services_ that all can either work independently or together. This makes it a little interesting to teach Firebase, because _there's so many ways you can use it_. I'm going to take the approach of how you would use Firebase an entire site, that way we can cover a lot. However, I will point out how you would integrate it with an existing system.

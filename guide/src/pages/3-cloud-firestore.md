@@ -56,15 +56,6 @@ Many developers come to NoSQL with at least some SQL experience. They are used t
   </p>
 </div>
 
-<div aria-hidden="true" class="slide" data-type="main" data-title="SQL and NoSQL">
-  <div class="heading-group">
-    <div class="main-title"><span class="highlight">SQL</span> and <span class="highlight">NoSQL</span></div>
-  </div>
-  <p class="title">
-    NoSQL tends to be a bit of jarring experience at first because it has <span class="highlight">different priorities</span>.
-  </p>
-</div>
-
 <div aria-hidden="true" class="slide" data-type="main" data-title="Tables">
   <img src="/tbl_join.svg" alt="Two SQL tables" class="height-80">
 </div>
@@ -212,6 +203,23 @@ const userDoc = doc(db, 'users/david');
 
 Both of those references will allow you to get all of the data at that location. For collections, we can query to restrict the result set down a bit more. For single documents, you retrieve the whole document so there's no querying needed.
 
+##### Using the Emulator
+Firestore has a fully functional offline emulator for development and CI/CD environments. In the last section we set up our project to run against the emulators. But as a review, you setup and run the emulators with the Firebase CLI and then use the JavaScript SDK to connect out to the emulator.
+
+```js
+import { initializeApp } from 'firebase/app';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { config } from './config';
+
+const firebaseApp = initializeApp(config.firebase);
+const firestore = getFirestore(firebaseApp);
+if(location.hostname === 'localhost') {
+  connectFirestoreEmulator(firestore, 'localhost', 8080);
+}
+```
+
+Whenever you are on running on `localhost` your app won't connect out to production services. 
+
 ##### onSnapshot()
 With a reference made, we have a decision to make. Do we want to get the data one time, or do we want the realtime synchronized data state every time there's an update at that location? The realtime option sounds fun, so let's do that first.
 
@@ -221,6 +229,8 @@ With a reference made, we have a decision to make. Do we want to get the data on
   </div>
 
 ```js
+import { onSnapshot } from 'firebase/firestore';
+
 onSnapshot(userDoc, snapshot => {
   console.log(snapshot);
 });
@@ -233,6 +243,8 @@ onSnapshot(usersCol, snapshot => {
 </div>
 
 ```js
+import { onSnapshot } from 'firebase/firestore';
+
 onSnapshot(userDoc, snapshot => {
   console.log(snapshot);
 });
@@ -588,6 +600,7 @@ console.log(newUser.id);
 ```
 </div>
 
+##### Redux-like updates
 
 In a CRUD like system you'll make a request to a server to create a resource and get the result back in the response.
 
@@ -688,8 +701,19 @@ In this case when we add a new user it will fire the callback of `onSnapshot()`,
 
 And that's not all you can get from a `Snapshot`. I don't know if I said this, but it's really useful.
 
-##### The Offline Cache
-One of the important properties of a snapshot is metadata. 
+##### The offline cache
+Firestore is designed to work even when the client loses connection. When data is downloaded using the SDK, it is stored in a cache that is backed by `IndexedDB`. You don't have to write your code in an "offline" and "online" modes either. Firestore will continue to fire events and work. Once the connection is regained, Firestore will synchronize the changes back to the server. The only code change you need to make is to enable the caching behavior.
+
+```js
+import { getFirestore, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
+
+enableMultiTabIndexedDbPersistence(getFirestore());
+```
+
+Firestore actually has two caching behaviors: single tab and multi tab. This function sets up multitab synchronization, which enables all tabs to synchronize from the same cache. If you've ever opened up two tabs of an offline web app, you'll like have ran into a message saying offline is only available in one tab. With Firestore, you don't have that problem.
+
+###### Snapshot metadata
+For the most part the cache is hidden away from you. However, you do have access to some important cache information when dealing with a `Snapshot`, like its `metadata`. 
 
 ```js
 onSnapshot(userDoc, snapshot => {
@@ -1040,7 +1064,7 @@ Let's get to the code.
 #### NoSQL and joins
 This entire time we've only queried _from one collection._ I'm sure a lot of you SQL developers are asking: How do you _join data_ from other collections?
 
-The answer, just like anything in web development, is that it depends on your situation. This is another situation where it's helpful to look at what you might be used to in the SQL world.
+The answer, just like anything in web development, is _that it depends on your situation_. This is another situation where it's helpful to look at what you might be used to in the SQL world.
 
 ##### Normalization
 A cornerstone of SQL is data normalization. Normalization seeks to ensure that data is not duplicated across the database. This is commonly done through the use of foreign keys. Each row has a column that corresponds to another record in another table. 
@@ -1075,16 +1099,18 @@ let expensesQuery = query(
 
 Now I can feel my ears burning which tells me that some of you out there are completely aghast to the data duplication going on. You might be saying "What if the user updates their name or other information! That data is going to be inconsistent!" Well, that's true. With NoSQL databases you do need to update that user data in every expense record.
 
-That's a technique known as _fanout_. However, this isn't as bad of a concept as you might think. Fanout works really well in the case where data is rarely updated, much like a user's name. Also fanout can be done without locking up the database, so the user can continue to use their app while the data is updating. There's no wait time unlike a query.
+That's a technique known as _fanout_. However, this isn't as bad of a concept as you might think. Fanout works really well in the case where data isn't often updated, much like a user's name. It's extremely fast to retrieve the data without having to calculate a complex query.
+
+Fanout can be done behind the scenes, so the user can continue to use their app while the data is updating.
 
 ##### The denormalization spectrum
 Now just because I can use fanout, it doesn't mean I always have to. In reality, I would not use fanout in this data structure. This is a _one-to-many_ data structure. _One user, many expenses._ I would get the logged in user with Firebase Authentication, then use their `uid` to get their profile data, and then get their expenses. 
 
 ```js
-let userQuery = collection(firestore, `users/${auth.currentUser.uid}`);
+let userQuery = doc(firestore, `users/${auth.currentUser.uid}`);
 let expensesQuery = query(
   collection(firestore, 'expenses'),
-  where('uid', '==', auth.currentUser.uid)
+  where('user.uid', '==', auth.currentUser.uid)
 );
 
 // Issue a one-time read for the user
@@ -1160,7 +1186,7 @@ Time for another demo!
   <li>cd /3-cloud-firestore/start</li>
   <li>npm i</li>
   <li>npm run dev</li>
-  <li>http://localhost:3000/6/collection-group-quries</li>
+  <li>http://localhost:3000/6/collection-group-queries</li>
 </ul>
 
 #### Atomicity

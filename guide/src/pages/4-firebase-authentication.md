@@ -23,7 +23,7 @@ How many providers are there? A fair amount.
 - Game Center
 - Play Games
 
-I'm going to be honest with you all on this section. This is going to be an easy one. I'm a massive Frontend Masters' fan and I feel like I have a good idea of what you're looking for in a course. Signing in users with Firebase Auth is fairly straightforward. I don't want to waste your time by painstakingly taking you through each provider one-by-one. Instead I'm going to teach how the system works overall.  What's most important is that you understand:
+I'm going to be honest with you all on this section. This is going to be an easy one. I'm a massive Frontend Masters' fan and I feel like I have a good idea of what you're looking for in a course. Signing in users with Firebase Auth is fairly straightforward. I don't want to waste your time by painstakingly taking you through each provider one-by-one. Instead I'm going to teach _how the system works overall_.  What's most important is that you understand:
 
 1. How the general sign in process works
 1. How to observe authentication state
@@ -53,15 +53,23 @@ import { config } from './config';
 
 const firebaseApp = initializeApp(config.firebase);
 const auth = getAuth(firebaseApp);
-connectAuthEmulator(auth, 'http://localhost:9099');
+if(location.hostname === 'localhost') {
+  connectAuthEmulator(auth, 'http://localhost:9099');
+  // and other emulator connections as well
+}
 ```
 
 A good thing to keep in mind too is that before deploying you need to enable the providers you're using in the Firebase Console. Every provider in Firebase Auth has to be manually enabled. While this may seem frustrating at first, it's a good choice in terms of security.
 
+##### Emulator vs Console
+It's good to keep in mind what actions you're performing in the Firebase Console vs the Emulator. The Console contains all the production actions such as enabling a provider or managing users. If you delete a user in the Console, they are gone for good. 
+
+How
+
 #### The sign in process
 Signing in users follow a similar formula. The JavaScript SDK provides a series of "sign in functions" that trigger a sign in flow.
 
-#### Basic email & password
+##### Basic email & password
 Take a look at one of the most simple providers: email and password.
 
 ```js
@@ -175,6 +183,8 @@ Users love choice when it comes to creating an account with your app. It creates
 
 This policy means that only email can be used per account. If a user signs in with Google as `david@example.com` and then later on that same user tries to sign in with Twitter associated with the same `david@example.com`, we will notify you that we won't outright sign the user in because we already have a user with that email. From there you opt to merge accounts so when the user signs in with either Google or Twitter it will point them to the same account.
 
+##### Linking accounts
+
 ##### Exercise
 Okay will all of your new found knowledge of Firebase Auth, we're going to do a little fun exercise. We're going to create a little auth flow. We'll boot up the Emulator with a set of users and then try to log in as an existing user and handle the merge.
 
@@ -188,6 +198,7 @@ Okay will all of your new found knowledge of Firebase Auth, we're going to do a 
 #### Untrusted vs Trusted Environments
 Firebase Authentication has two types of SDKs: client and server. This entire time we've been using the client SDK. The client SDK is responsible for direct user actions such as logging in, logging out, and their user state. This SDK does not have or desire the power to manage all the users within the authentication system. It is specifically scoped for a single user action.
 
+##### The Admin SDK
 However, it's really important to be able to perform operations as an administrator of an authentication system. Sometimes you want to manually create, delete, or update accounts. Also while we'd love to have you as a customer, you should be able to export your data to move onto another provider or your own system. That's why we have a server SDK that we refer to as the Admin SDK. This is available on multiple platforms such as Java, Python, Node, .NET and others. It's capable of many things other than user management as well. The Admin SDK allows you to verify and mint tokens on the server which allows you to authenticate with custom systems. You can also issue cookies to do authentication over HTTP Cookies as well. I'm not getting into all of that because that's a deep dive within itself. For now I'm going to cover the fundamentals of using the Admin SDK to manage users.
 
 Before we can begin with the Admin SDK, we have to understand that not only is it different from the client capabilities, but it also has a different security model. The client SDK works on a single use basis, the server/Admin SDK works for all users. Therefore the Admin SDK ignores all security rules and operates with complete power. What gives it that power is a service account. A service account is like a special user account that has a lot of power. You can apply scopes to a user account to reduce its power however. To create a service account you go to the Firebase Console and download one as a JSON file. From there you can import that file and use it for initialization.
@@ -208,7 +219,7 @@ It's important to note that a service account affects production. If you are usi
 export const sample = ""
 ```
 
-#### User management with the Admin SDK
+##### Admin user management
 With the Admin SDK and the Emulator you can seed an entire set of users for local development. This is actually what has been happening the entire time you boot up the emulator. Using a local set of data, I run a script that calls the Admin SDK to create a whole set of users. 
 
 ```js
