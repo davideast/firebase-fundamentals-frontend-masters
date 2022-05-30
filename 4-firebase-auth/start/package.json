@@ -1,0 +1,24 @@
+{
+  "name": "4-firebase-auth",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "concurrently npm:emulators vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "emulators": "firebase emulators:start --only firestore,auth --import=./local"
+  },
+  "dependencies": {
+    "firebase": "^9.8.1",
+    "open-props": "^1.3.16",
+    "vue": "^3.2.25"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^2.3.3",
+    "concurrently": "^7.2.1",
+    "firebase-tools": "^11.0.0",
+    "ts-node": "^10.8.0",
+    "tsc": "^2.0.4",
+    "vite": "^2.9.9"
+  }
+}

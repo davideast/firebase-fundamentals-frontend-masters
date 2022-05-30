@@ -304,7 +304,13 @@ Today if you want to use it, you can specify a flag to make it available.
 firebase --open-sesame frameworkwareness
 ```
 
-Then afterwards when you go to deploy a Next.js, Nuxt, and Angular Universall app, the CLI will automatically handle all of the building, deploying, an Cloud Function generation on your behalf. Like I said, it's early, but you can [check out the GitHub repo](https://github.com/FirebaseExtended/firebase-framework-tools) to learn more and give it a try.
+Then when you're ready to deploy:
+
+```
+firebase deploy
+```
+
+The CLI will automatically handle all of the building, deploying, an Cloud Function generation on your behalf. Like I said, it's early, but you can [check out the GitHub repo](https://github.com/FirebaseExtended/firebase-framework-tools) to learn more and give it a try.
 
 #### Demo
 Cloud Functions are full of possibilites and useful use-cases. Let's implement a few.
