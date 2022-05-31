@@ -921,7 +921,7 @@ As you can see, Firestore is really powerful when it comes to realtime synchroni
     <li>cd /3-cloud-firestore/start</li>
     <li>npm i</li>
     <li>npm run dev</li>
-    <li>http://localhost:3000/2/realtime-streams</li>
+    <li>http://localhost:3000/1/realtime-streams</li>
   </ul>
 </div>
 
