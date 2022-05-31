@@ -6,50 +6,18 @@ import { collection, onSnapshot, limit, query, where, orderBy } from 'firebase/f
 
 const { firestore } = getFirebase();
 const usersCol = collection(firestore, 'users');
-const expensesCol = collection(firestore, 'expenses');
 
-let expensesQuery = null;
-// // 1. Get the first 200 expenses.
-// expensesQuery = query(
+// 1. Create a new Grocery Item with a custom ID
 
-// );
+// 2. Update that Grocery Item
 
-// // 2. Get all expenses categorized as 'pets'
-// expensesQuery = query(
+// 3. Delete that Grocery Item
 
-// );
+// 4. Create a Grocery item with a generated ID
 
-// // 3. Get all expenses less than $200, ordered from greatest to least
-// expensesQuery = query(
+// 5. Create a Grocery item with a server timestamp
 
-// );
-
-// // 4. Get all expenses that occurred before July of 2021
-// expensesQuery = query(
-
-// );
-
-// 5. Get all expenses between July 2021 and October 2021
-// expensesQuery = query(
-
-// );
-
-// Composite queries below
-
-// 6. Get all expenses between July 2021 and October 2021 categorized as 'fun'
-// expensesQuery = query(
-
-// );
-
-// // 7. Get all expenses are NOT categorized as 'fun', 'clothes', 'gifts', 'home', and 'personal'
-// expensesQuery = query(
-
-// );
-
-// // 8. Get all expenses are categorized as 'food' that occurred in January 2021, but not on 12/26/2021
-// expensesQuery = query(
-
-// );
+// 6. Increment a "like" count of Grocery Item
 
 const state = bindToTable(expensesQuery)
 

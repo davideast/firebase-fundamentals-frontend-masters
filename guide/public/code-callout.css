@@ -1,5 +1,5 @@
-.content ul.code-callout {
-  list-style: none;
+ul.code-callout {
+  list-style: none !important;
   margin-inline: 0;
   margin-block: var(--space-lg);
   padding: 0;
@@ -9,7 +9,7 @@
   word-break: break-word;
 }
 
-.content ul.code-callout li {
+ul.code-callout li {
   font-family: var(--font-mono);
   font-size: var(--text-lg);
 }

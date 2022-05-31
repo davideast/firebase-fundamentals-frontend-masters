@@ -5,48 +5,31 @@ import { getFirebase } from '../firebase';
 import { collection, onSnapshot, limit, query, where, orderBy } from 'firebase/firestore';
 
 const { firestore } = getFirebase();
-const usersCol = collection(firestore, 'users');
 const expensesCol = collection(firestore, 'expenses');
-
 let expensesQuery = null;
-// // 1. Get the first 200 expenses.
+
+// // 1. Get the first 100 categories that are categorized as 'fun' AND 'kids'
 // expensesQuery = query(
 
 // );
 
-// // 2. Get all expenses categorized as 'pets'
+// // 2. Get the first 25 categories that are categorized as ONLY 'fun' OR 'kids'
 // expensesQuery = query(
 
 // );
 
-// // 3. Get all expenses less than $200, ordered from greatest to least
+// // 3. Get the first 10 categories that contain the 'fun' category
 // expensesQuery = query(
 
 // );
 
-// // 4. Get all expenses that occurred before July of 2021
+// // 4. Get the first 25 categories that contain the 'fun' OR 'kids' category
 // expensesQuery = query(
 
 // );
 
-// 5. Get all expenses between July 2021 and October 2021
-// expensesQuery = query(
-
-// );
-
-// Composite queries below
-
-// 6. Get all expenses between July 2021 and October 2021 categorized as 'fun'
-// expensesQuery = query(
-
-// );
-
-// // 7. Get all expenses are NOT categorized as 'fun', 'clothes', 'gifts', 'home', and 'personal'
-// expensesQuery = query(
-
-// );
-
-// // 8. Get all expenses are categorized as 'food' that occurred in January 2021, but not on 12/26/2021
+// // 5. Get the first 25 expenses that occurred in January 2021, 
+// // but not on 12/30/2021, 12/26/2021, 12/23/2021, or 12/28/2021
 // expensesQuery = query(
 
 // );
@@ -65,20 +48,24 @@ function bindToTable(expensesQuery) {
   return state;
 }
 
-function bindToState(state, query, transform = formatExpense) {
+function bindToState(state, query, transform) {
   return onSnapshot(query, snapshot => {
-    state.results = snapshot.docs.map(transform);
+    const callbackFn = transform == null ? formatExpense : transform;
+    state.results = snapshot.docs.map(d => {
+      return callbackFn(snapshot, d);
+    });
   });
 }
 
-function formatExpense(docSnapshot) {
-  const { uid, cost, category, date: rawDate } = docSnapshot.data();
+function formatExpense(snapshot, d) {
+  const { uid, cost, categories, date: rawDate } = d.data();
   const dateConfig = { day: '2-digit', month: '2-digit', year: 'numeric' };
   const date = new Intl.DateTimeFormat('en', dateConfig).format(rawDate.toDate());
-  const { fromCache } = docSnapshot.metadata;
-  return { uid, cost, category, fromCache, date };
+  const { fromCache } = snapshot.metadata;
+  return { uid, cost, categories: categories.join(', ') , fromCache, date };
 }
 </script>
+
 
 <template>
   <main>    

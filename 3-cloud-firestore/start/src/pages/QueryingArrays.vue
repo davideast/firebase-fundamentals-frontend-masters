@@ -9,9 +9,6 @@ const expensesCol = collection(firestore, 'expenses');
 let expensesQuery = null;
 
 // // 1. Get the first 100 categories that are categorized as 'fun' AND 'kids'
-// expensesQuery = query(
-
-// );
 
 // // 2. Get the first 25 categories that are categorized as ONLY 'fun' OR 'kids'
 // expensesQuery = query(

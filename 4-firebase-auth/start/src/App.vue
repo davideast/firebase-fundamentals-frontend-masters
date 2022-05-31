@@ -16,7 +16,6 @@ import {
 import { getDocs, collection, query, where } from 'firebase/firestore';
 
 const { auth, firestore } = getFirebase();
-let subscription = null;
 const state = reactive({ expenses: [] });
 const expensesCol = collection(firestore, 'expenses');
 
