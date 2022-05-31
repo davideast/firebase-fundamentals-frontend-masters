@@ -15,9 +15,8 @@ import {
 } from "firebase/auth";
 import { getDocs, collection, query, where } from 'firebase/firestore';
 
-const { auth, firestore } = getFirebase();
+const { auth } = getFirebase();
 const state = reactive({ expenses: [] });
-const expensesCol = collection(firestore, 'expenses');
 
 function getFormDetails(event) {
   const formData = new FormData(event.target);
@@ -35,10 +34,6 @@ async function signIn(event) {
 async function createAccount(event) {
   event.preventDefault();
   const { email, password } = getFormDetails(event);  
-
-}
-
-async function mergeEmail({ email, password }) {
 
 }
 
@@ -73,7 +68,7 @@ onBeforeUnmount(() => {
         value="fprescote30@posterous.com"
       />
       <input name="password" type="password" value="1234Firebase" />
-      <button type="submit">Create In</button>
+      <button type="submit">Create</button>
     </form>
 
     <form v-on:submit="signIn">
