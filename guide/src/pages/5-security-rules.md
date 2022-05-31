@@ -91,7 +91,7 @@ If you've ever written an Express JS router or some kind of HTTP routing system,
 
 ```js
 app.get('/users/david_123', (req, res) => { 
-  const { id } = req.params; 
+
 });
 ```
 </div>
@@ -99,7 +99,7 @@ app.get('/users/david_123', (req, res) => {
 
 ```js
 app.get('/users/david_123', (req, res) => { 
-  const { id } = req.params; 
+
 });
 ```
 
@@ -130,7 +130,7 @@ Match blocks are how you define which path to apply a rule to. When you write ma
     <div class="main-title"><span class="highlight">Document</span> level matching</div>
   </div>
   <p class="title">
-    Rules<em>must</em> match at the <em>document</em> level.
+    Rules <em>must</em> match at the <em>document</em> level.
   </p>
 </div>
 

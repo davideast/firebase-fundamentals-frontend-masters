@@ -24,7 +24,10 @@ function assertPermissionDenied(t, result) {
 
 // 1
 test('An unauthenticated user fails to write to a profile', async (t) => {
-
+  const context = testEnv.unauthenticatedContext();
+  const userDoc = context.firestore().doc('users/david_123');
+  const result = await assertFails(userDoc.set({ name: 'Im david', email: 'blah@email.com' }));
+  assertPermissionDenied(t, result);
 });
 
 // 2

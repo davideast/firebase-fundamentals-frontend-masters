@@ -13,30 +13,163 @@ next:
 
 Firebase architecture can be heavily based on the client at times. However, sometimes you need a server. You might need to process payments, send emails, or handle admin actions that should be accessible by a client. For all those things we have _Cloud Functions_.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Cloud Functions">
+
+  <div class="title">Cloud <span class="highlight">Functions</span></div>
+  <div class="side-grid firestore">
+    <div class="numeric-side">
+      <div class="highlight mega-number">Events</div>
+      <div class="subtitle">Serverless</div>
+    </div>
+    <div class="subtitle">
+      <span class="highlight">Cloud Functions</span> allows you write <span class="highlight">server code</span> in response to events that happen within <span class="highlight">Firebase</span>.
+    </div>
+  </div>
+  
+</div>
+
 #### Serverless & event driven
 Cloud Functions allows you write server code that runs in response to events that happen within Firebase. Whenever a document in Firestore is created, run some server code. Whenever a user is created in Firebase Authenticated, send an welcome email. 
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Serverless & event driven">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Serverless</span> and event driven</div>
+  </div>
+  
+- Whenever a document in Firestore is created, call an external API. 
+- Whenever a user is created in Firebase Authenticated, send an welcome email. 
+  </p>
+</div>
+
 
 ##### Background triggers
 We refer to these events as _triggers_. Whenever you complete an action on the client SDK you _trigger_ an event on the server.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Background triggers">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Serverless</span> and event driven</div>
+  </div>
+  
+  <p class="title">Complete an action on the client, <em>trigger</em> an event on the server</p>
+</div>
+
+
 ##### Trusted environment
 Cloud Functions are considered a trusted environment. This means you can use the Admin SDK and perform powerful actions on behalf of users. Though as always, you need to be cautious when using the Admin SDK with Firestore because it bypasses all Security Rules.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Trusted Enviroments">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Functions</span> are trusted</div>
+  </div>
+  
+  <p class="title">
+    Functions are a trusted environment. This means you can use the Admin SDK.
+  </p>
+</div>
+
 ##### Understanding cold start
 When a function is triggered it takes time to boot up and run your code. This process of going from _cold_ to _warm_ is referred to as the _cold start_. This time period can take anywhere between `500ms` to several seconds depending on several factors such as the size of the function's dependencies (your `node_modules` for example).
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Cold Start">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Cold</span> start</div>
+  </div>
+  
+  <p class="title">
+    When a function is triggered it takes time to boot up and run your code.
+  </p>
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Cold Start">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Cold</span> start</div>
+  </div>
+  
+  <p class="title">
+    Ranges anywhere between <code>500ms</code> or higher depending on several factors.
+  </p>
+</div>
 
 For many types of functions this isn't a huge deal since they are background triggers. The work happens behind the scenes to the user and it's not a big deal if the cold boot takes a second or two. However, there's other situations where it's vital: such as server side rendering web pages. For these kind of situations you have a handful of tools at your disposal for dropping cold start times, such as [minimum instances](https://firebase.google.com/docs/functions/manage-functions#reduce_the_number_of_cold_starts) and the [caching content in Firebase Hosting's CDN](https://firebase.google.com/docs/hosting/manage-cache).
 
 ##### v1 vs v2
 One thing I wasn't sure I was going to put in this section was the difference between Cloud Functions v1 and Cloud Functions v2. Cloud Functions launched way back in 2017 and very recently (this year in 2022) [we launched Cloud Functions v2](https://cloud.google.com/blog/products/serverless/introducing-the-next-generation-of-cloud-functions). What's the main difference? _Concurrency_.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="v1 and v2">
+  <div class="heading-group">
+    <div class="main-title"><span class="h">v1</span> and <span class="h">v2</span></div>
+  </div>
+  
+  <p class="title">
+    Recently a new generation of Cloud Functions was launched and it has great implications for <span class="h">cold start</span>.
+  </p>
+</div>
+
+
 ##### Concurrency
 In Cloud Functions v1 you a function instance can serve one request per function. This model is clear but leads to a lot of cold starts. In Cloud Functions v2 you a single function instance can handle multiple requests, `80` by default, and up to a `1,000`. This means a new function doesn't have spin up for every requests and therfore greatly reduces cold start.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Concurrency">
+  <div class="heading-group">
+    <div class="main-title"><span class="h">v1</span> and <span class="h">v2</span></div>
+  </div>
+  
+  <p class="title">
+    Recently a new generation of Cloud Functions was launched and it has great implications for <span class="h">cold start</span>.
+  </p>
+</div>
+
 When you combine concurrency, minimum instances, and a using Firebase Hosting as a CDN cache you have scalable and fast server side rendering solution. And while it sounds complicated to use all of this, they are all small settings you specify when configuring your function's environment. We're not going to get into concurrency in this course since it's all pretty new, but I would be doing the feature a great disservice if I didn't give it a mention.
+
+<div aria-hidden="true" class="slide total-center" data-type="main" data-title="Concurrency">
+  <img class="width-50" src="/concurrency.png" alt="Concurrency" style="border-radius: 8px;" />
+</div>
 
 #### Functions SDK
 Firebase provides a `firebase-functions` SDK that wires up triggers and handles deployments with the Firebase CLI. 
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Bootstrap with the CLI">
+  <div class="heading-group">
+    <div class="main-title">Bootstrap with the <span class="h">CLI</span></div>
+  </div>
+  
+```bash
+firebase init functions
+```
+
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Functions SDK">
+  <div class="heading-group">
+    <div class="main-title">Functions <span class="h">SDK</span></div>
+  </div>
+  
+```js
+// functions/index.js
+const functions = require('firebase-functions');
+
+exports.helloWorld = functions.https.onRequest((request, response) => {
+  
+});
+```
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Deploy">
+  <div class="heading-group">
+    <div class="main-title"><span class="h">Deploy</span></div>
+  </div>
+  
+```bash
+firebase deploy --only functions
+```
+
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Demo time">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Demo time</span></div>
+  </div>
+</div>
 
 ##### Setting up with the CLI
 The most common way to get started is to use the Firebase CLI to bootstrap your project.

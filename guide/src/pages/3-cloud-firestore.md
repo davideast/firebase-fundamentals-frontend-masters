@@ -637,19 +637,6 @@ updateDoc(darlaScoreDoc, {
   <div class="title">Firestore can only reliably handle 1 write per second on a document.</div>
 </div>
 
-<div aria-hidden="true" class="slide" data-type="main" data-title="Demo & excerise">
-  <div class="heading-group">
-    <div class="main-title">Demo & exercise</div>
-  </div>
-
-  <ul class="code-callout">
-    <li>cd /3-cloud-firestore/start</li>
-    <li>npm i</li>
-    <li>npm run dev</li>
-    <li>http://localhost:3000/2/writing-data</li>
-  </ul>
-</div>
-
 The functions ensure that the incrementing and decrementing operations happen the latest value in the database. It's important to note that these functions can only work reliably if ran at most once per second. If you need updates faster than that you can use a solution called a _distributed counter_. But that's for another class.
 
 Now there's one thing you should notice here. We're making updates to the server, but nowhere are we awaiting the result of the update. It's still an async operation, but why aren't we awaiting the result?
@@ -877,7 +864,7 @@ updateDoc(userDoc, { name: 'David!' });
 
 This tells you information about whether the data has been sent to the server and the snapshot was delivered from Firestore's local cache or directly from the network.
 
-<div aria-hidden="true" class="slide" data-type="main" data-title="Snapshot metadata">
+<div aria-hidden="true" class="slide no-gap" data-type="main" data-title="Snapshot metadata">
   <div class="heading-group">
     <div class="main-title">Snapshot <span class="highlight">metadata</span></div>
   </div>
@@ -900,7 +887,7 @@ updateDoc(userDoc, { name: 'David!' });
 ```
 </div>
 
-<div aria-hidden="true" class="slide" data-type="main" data-title="Snapshot metadata">
+<div aria-hidden="true" class="slide no-gap" data-type="main" data-title="Snapshot metadata">
   <div class="heading-group">
     <div class="main-title">Snapshot <span class="highlight">metadata</span></div>
   </div>
@@ -1145,7 +1132,7 @@ let expensesQuery = query(
 
 This returns the first `30` expenses that do not have `'transportation'` as a category. Going back to the `user.city` query, you can query for a set of users who are not in a city.
 
-<div aria-hidden="true" class="slide" data-type="main" data-title="not-in">
+<div aria-hidden="true" class="slide no-gap" data-type="main" data-title="not-in">
   <div class="heading-group">
     <div class="main-title"><span class="h">not-in</span> operator</div>
   </div>
@@ -1748,6 +1735,70 @@ let expensesQuery = query(
 
 // Issue a one-time read for the user
 const userSnap = await getDoc(userQuery);
+
+
+
+
+
+
+
+
+```
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="one-to-many">
+
+```js
+let userQuery = doc(firestore, `users/${auth.currentUser.uid}`);
+let expensesQuery = query(
+  collection(firestore, 'expenses'),
+  where('user.uid', '==', auth.currentUser.uid)
+);
+
+// Issue a one-time read for the user
+const userSnap = await getDoc(userQuery);
+// Create a realtime listener for expenses
+onSnapshot(expensesQuery, snapshot => {
+
+
+
+
+});
+```
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="one-to-many">
+
+```js
+let userQuery = doc(firestore, `users/${auth.currentUser.uid}`);
+let expensesQuery = query(
+  collection(firestore, 'expenses'),
+  where('user.uid', '==', auth.currentUser.uid)
+);
+
+// Issue a one-time read for the user
+const userSnap = await getDoc(userQuery);
+// Create a realtime listener for expenses
+onSnapshot(expensesQuery, snapshot => {
+  console.log({
+    user: userSnap.data(),
+    expenses: 
+  });
+});
+```
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="one-to-many">
+
+```js
+let userQuery = doc(firestore, `users/${auth.currentUser.uid}`);
+let expensesQuery = query(
+  collection(firestore, 'expenses'),
+  where('user.uid', '==', auth.currentUser.uid)
+);
+
+// Issue a one-time read for the user
+const userSnap = await getDoc(userQuery);
 // Create a realtime listener for expenses
 onSnapshot(expensesQuery, snapshot => {
   console.log({
@@ -1777,14 +1828,6 @@ onSnapshot(expensesQuery, snapshot => {
 ```
 
 This situation works really well for many types of data structures and especially _one-to-many_ relationships. Just because you're using a NoSQL database doesn't always mean you have to go full onboard the denormalization train. A lot of developers coming from SQL are worried that if they use a NoSQL database they'll have to pre-compute all their queries and into structures and fan out every data update for the rest of their life. But that's not the case.
-
-<div aria-hidden="true" class="slide" data-type="main" data-title="Flexible">
-  <div class="heading-group">
-    <div class="main-title"><span class="h">Flexible</span></div>
-  </div>
-
-  <div class="title">Denormalization isn't a rigid specification</div>
-</div>
 
 _Denormalization isn't a rigid specification_, it's a spectrum. You decide how much data duplication is needed, if at all. While Firestore is not like a SQL database, it does have a sizable set of query features that help you find your right spot in this spectrum.
 
@@ -1998,7 +2041,7 @@ batch.set(doc(expensesCol), {
 batch.update(doc(expensesCol, 'i-know-this-id'), { 
   categories: ['transportation', 'fun'],
 })
-batch.delete(doc(expensesCol, 'i-know-this-id'));
+batch.delete(doc(expensesCol, 'i-know-another-id'));
 
 try {
   await batch.commit();
@@ -2101,7 +2144,7 @@ batch.set(doc(expensesCol), {
 batch.update(doc(expensesCol, 'i-know-this-id'), { 
   categories: ['transportation', 'fun'],
 })
-batch.delete(doc(expensesCol, 'i-know-this-id'));
+batch.delete(doc(expensesCol, 'i-know-another-id'));
 
 
 
@@ -2127,7 +2170,7 @@ batch.set(doc(expensesCol), {
 batch.update(doc(expensesCol, 'i-know-this-id'), { 
   categories: ['transportation', 'fun'],
 })
-batch.delete(doc(expensesCol, 'i-know-this-id'));
+batch.delete(doc(expensesCol, 'i-know-another-id'));
 
 try {
   await batch.commit();
@@ -2153,7 +2196,7 @@ batch.set(doc(expensesCol), {
 batch.update(doc(expensesCol, 'i-know-this-id'), { 
   categories: ['transportation', 'fun'],
 })
-batch.delete(doc(expensesCol, 'i-know-this-id'));
+batch.delete(doc(expensesCol, 'i-know-another-id'));
 
 try {
   await batch.commit();
