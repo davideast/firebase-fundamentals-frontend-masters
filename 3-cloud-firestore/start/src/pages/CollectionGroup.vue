@@ -2,37 +2,22 @@
 import { onMounted, reactive, onBeforeUnmount } from 'vue';
 import ExpenseExcersize from '../components/ExpenseExcersize.vue'
 import { getFirebase } from '../firebase';
-import { collection, onSnapshot, limit, query, where, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, limit, query, where, orderBy, collectionGroup } from 'firebase/firestore';
 
 const { firestore } = getFirebase();
 const expensesCol = collection(firestore, 'expenses');
 let expensesQuery = null;
 
-// // 1. Get the first 100 categories that are categorized as 'fun' AND 'kids'
+// // 1. Get the first 100 expenses across all users that are under $100
 // expensesQuery = query(
 
 // );
 
-// // 2. Get the first 25 categories that are categorized as ONLY 'fun' OR 'kids'
+// // 2. Get the first 100 expenses across all users from any date range
 // expensesQuery = query(
 
 // );
 
-// // 3. Get the first 10 categories that contain the 'fun' category
-// expensesQuery = query(
-
-// );
-
-// // 4. Get the first 25 categories that contain the 'fun' OR 'kids' category
-// expensesQuery = query(
-
-// );
-
-// // 5. Get the first 25 expenses that occurred in January 2021, 
-// // but not on 12/30/2021, 12/26/2021, 12/23/2021, or 12/28/2021
-// expensesQuery = query(
-
-// );
 
 const state = bindToTable(expensesQuery)
 
