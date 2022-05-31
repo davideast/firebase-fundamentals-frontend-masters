@@ -312,7 +312,7 @@ onSnapshot(usersCol, snapshot => {
 
 The `onSnapshot()` function takes in either a collection or document reference. It returns the state of the data in the callback function and will fire again for any updates that occur at that location. What you notice too is that it doesn't return the data directly. It returns an object called a snapshot. A snapshot is an object that contains the data and a lot of important information about its state as well. We'll get into the other info in a bit, but to get the actual data, you tap into the data function.
 
-<div aria-hidden="true" class="slide" data-type="main" data-title="onSnapshot() data">
+<div aria-hidden="true" class="slide no-gap" data-type="main" data-title="onSnapshot() data">
   <div class="heading-group">
     <div class="main-title"><span class="highlight">onSnapshot() data</span></div>
   </div>
@@ -329,7 +329,7 @@ onSnapshot(usersCol, snapshot => {
   // this is an array of docs
   console.log(snapshot.docs);
   // you can iterate through and map what you need
-  console.log(snapshot.docs.map(d => d.data());
+  console.log(snapshot.docs.map(d => d.data()));
 });
 ```
 </div>
@@ -347,7 +347,7 @@ onSnapshot(usersCol, snapshot => {
    // this is an array of docs
   console.log(snapshot.docs);
   // you can iterate through and map what you need
-  console.log(snapshot.docs.map(d => d.data());
+  console.log(snapshot.docs.map(d => d.data()));
 });
 ```
 
@@ -417,7 +417,7 @@ The `updateDoc()` function can take in a partial set of data and apply that upda
 
 ```js
 const davidDoc = doc(firestore, 'users/david_123');
-updateDoc(davidDoc, { name: 'David!!!!' });
+updateDoc(davidDoc, { highscore: 82 });
 ```
 
 <div aria-hidden="true" class="slide" data-type="main" data-title="updateDoc()">
@@ -427,7 +427,7 @@ updateDoc(davidDoc, { name: 'David!!!!' });
 
 ```js
 const davidDoc = doc(firestore, 'users/david_123');
-updateDoc(davidDoc, { name: 'David!!!!' });
+updateDoc(davidDoc, { highscore: 82 });
 ```
 </div>
 
@@ -731,7 +731,7 @@ console.log(result); // { id, path, path, parent }
 
 In this example we await the `updateDoc()` function. This is like a server receipt that the operation was received and completed. It returns a promise of a document reference, but not the data. You can get the newly created ID, but as we saw before that ID is created on the client. If you need it, you can create a blank child document and then use `setDoc()` instead. So we don't need to use await to get the ID. What about if we just want to be really certain that the object was sent to the server? You can do that and in some cases it might be necessary. However, it's important to realize what that does.
 
-<div aria-hidden="true" class="slide" data-type="main" data-title="Redux-like updates">
+<div aria-hidden="true" class="slide no-gap" data-type="main" data-title="Redux-like updates">
   <div class="heading-group">
     <div class="main-title">Redux<span class="highlight">-like</span> updates</div>
   </div>
@@ -779,7 +779,7 @@ Remember how I told you that the `Snapshot` was really useful? Get used to me sa
 
 <div aria-hidden="true" class="slide" data-type="main" data-title="Document change types">
   <div class="heading-group">
-    <div class="main-title">Document<span class="highlight">change</span> types</div>
+    <div class="main-title">Document <span class="highlight">change</span> types</div>
   </div>
 
 ```js
