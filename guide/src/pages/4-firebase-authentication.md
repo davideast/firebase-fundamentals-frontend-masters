@@ -123,10 +123,9 @@ A good thing to keep in mind too is that before deploying you need to enable the
 ##### Emulator vs Console
 It's good to keep in mind what actions you're performing in the Firebase Console vs the Emulator. The Console contains all the production actions such as enabling a provider or managing users. If you delete a user in the Console, they are gone for good. 
 
-<div aria-hidden="true" class="slide" data-type="main" data-title="What we'll cover">
+<div aria-hidden="true" class="slide" data-type="main" data-title="Demo time">
   <div class="heading-group">
-    <div class="main-title"><span class="highlight">Emulator</span> vs</div>
-    <div class="main-title">Console</div>
+    <div class="main-title"><span class="highlight">Demo</span> time</div>
   </div>
 </div>
 

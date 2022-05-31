@@ -16,6 +16,22 @@ As mentioned before, authentication is knowing who the user is, authorization is
 #### What are Security Rules?
 Security Rules are the one-stop-shop for protecting data in the database. They act as a bouncer for requests into the database. Do you want to read the users collection? Well, there needs to be a rule that allows that. Otherwise, you're not getting to the club, I mean database. 
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Firebase Authentication">
+
+  <div class="title"><span class="highlight">Security</span> Rules</div>
+  <div class="side-grid firestore">
+    <div class="numeric-side">
+      <div class="highlight mega-number">Secure</div>
+      <div class="subtitle">Centralized</div>
+    </div>
+    <div class="subtitle">
+      <span class="highlight">Security</span> Rules determine <span class="highlight">access</span> to Firebase resources on each and every <span class="highlight">request</span>.
+    </div>
+  </div>
+  
+</div>
+
+
 <!-- ```cpp
 match /guestList/{uid} {
   allow read, write: if request.auth.uid == uid;
@@ -27,8 +43,27 @@ Security Rules can feel a little jarring at first because they are their own lan
 ##### Security, centralized
 A big benefit here is that the logic that determines authorization is _located in one spot_. In many (but not all) traditional systems, you can have many layers of security logic. You might write security checks on the server, and maybe some within the database itself. With Firebase apps, you write your security in one spot. Yes, you still perform client-side validation.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Centralized">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Centralized</span></div>
+  </div>
+  <p class="title">
+    Security Rules is the <em>only place</em> you need to write access based security code.
+  </p>
+</div>
+
 ##### Why a custom language?
 When a request comes into your service (Firestore, RTDB, or Storage) your rules evaluate whether that request is allowed. This means that the operation is held up until the rule is evaluated. If the evaluation takes a long time, that'll make performance pretty miserable for you and your users. That's exactly why Security Rules are their own custom language. This language is designed to evaluate quickly and to avoid performance bottlenecks.
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Custom language">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Custom language</span></div>
+  </div>
+  <p class="title">
+    Security Rules are a <em>custom language</em> to ensure fast <em>performance</em>.
+  </p>
+</div>
+
 
 #### Concepts
 Security rules start out by declaring what resource they are operating on. 
@@ -49,6 +84,19 @@ In this case we are operating against Cloud Firestore. Then from there it's all 
 ##### Matching
 If you've ever written an Express JS router or some kind of HTTP routing system, you'll be right at home with rules. Like a router, you can match paths and then specify your custom logic from there. But since this is a database or storage bucket, you can also think about rules as a way for you to annotate who has access to the data at that path.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Matching">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Matching</span></div>
+  </div>
+
+```js
+app.get('/users/david_123', (req, res) => { 
+  const { id } = req.params; 
+});
+```
+</div>
+
+
 ```js
 app.get('/users/david_123', (req, res) => { 
   const { id } = req.params; 
@@ -57,6 +105,18 @@ app.get('/users/david_123', (req, res) => {
 
 This matches on the path of the user and even captures their uid within as a variable. Using that uid you usually look up their profile or desired data. Security Rules work just the same way.
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Matching">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Matching</span></div>
+  </div>
+
+```cpp
+match /users/david_123 {
+
+}
+```
+</div>
+
 ```cpp
 match /users/david_123 {
 
@@ -64,6 +124,16 @@ match /users/david_123 {
 ```
 
 Match blocks are how you define which path to apply a rule to. When you write match statements for a path for a security rule the path _must match at the document level_. That means you can't write a match statement for a "users" collection. It has to match a document in that collection. 
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Document level matching">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Document</span> level matching</div>
+  </div>
+  <p class="title">
+    Rules<em>must</em> match at the <em>document</em> level.
+  </p>
+</div>
+
 
 This constraint might feel counterintuitive, and you might be wondering "How do I secure all of my users if they are dynamically created?" You can do that with wildcards.
 
@@ -76,6 +146,18 @@ app.get('/users/:id', (req, res) => {
 });
 ```
 
+<div aria-hidden="true" class="slide" data-type="main" data-title="Wildcards">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Wildcards</span></div>
+  </div>
+
+```js
+app.get('/users/:id', (req, res) => { 
+  const { id } = req.params; 
+});
+```
+</div>
+
 When a request comes in for that path you'll generate a page for that specific user given their route parameter. Security Rules work the same way but instead of a colon, you wrap the wildcard in curly braces. 
 
 ```cpp
@@ -83,6 +165,24 @@ match /users/{uid} {
 
 }
 ```
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Wildcards">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Wildcards</span></div>
+  </div>
+
+```cpp
+match /users/{uid} {
+
+}
+```
+</div>
+
+<div aria-hidden="true" class="slide" data-type="main" data-title="Demo time">
+  <div class="heading-group">
+    <div class="main-title"><span class="highlight">Demo time</span></div>
+  </div>
+</div>
 
 You aren't going to know each and every document in a collection, so given a request for a document you can capture the "id" or whatever route parameter with a wildcard. Our term for a "route parameter" (`id`) is called a segment variable. This allows you to follow the constraint of matching a specific document while thinking of it as securing an entire collection.
 
